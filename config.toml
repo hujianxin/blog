@@ -1,4 +1,4 @@
-btaxonomyTermaseurl = "/"
+btaxonomyTermaseurl = "/blog/"
 title = "Just4Fun"
 languageCode = "en-us"
 paginate = "10" # Number of posts per page
