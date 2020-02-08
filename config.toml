@@ -1,4 +1,5 @@
 baseURL = "https://hujianxin.github.com/"
 languageCode = "en-us"
 title = "JUST 4 FUN"
+publishDir = "docs"
 theme = "Mainroad"
