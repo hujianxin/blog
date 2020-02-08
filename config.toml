@@ -4,7 +4,7 @@ languageCode = "en-us"
 paginate = "10" # Number of posts per page
 theme = "Mainroad"
 publishDir = "docs"
-disqusShortname = "" # Enable Disqus comments by entering your Disqus shortname
+disqusShortname = "jianxinhu" # Enable Disqus comments by entering your Disqus shortname
 googleAnalytics = "" # Enable Google Analytics by entering your tracking id
 
 [Author] # Used in authorbox
@@ -13,12 +13,12 @@ googleAnalytics = "" # Enable Google Analytics by entering your tracking id
   avatar = "img/avatar.png"
 
 [Params]
-  subtitle = "Just another site" # Subtitle of your site. Used in site header
-  description = "John Doe's Personal blog about everything" # Site description. Used in meta description
-  copyright = "John Doe" # Footer copyright holder, otherwise will use site title
+  subtitle = "不甘于平庸，不够求富贵" # Subtitle of your site. Used in site header
+  description = "hujianxin's Personal blog about everything" # Site description. Used in meta description
+  copyright = "hujianxin" # Footer copyright holder, otherwise will use site title
   opengraph = true # Enable OpenGraph if true
   twitter_cards = true # Enable Twitter Cards if true
-  readmore = false # Show "Read more" button in list if true
+  readmore = true # Show "Read more" button in list if true
   authorbox = true # Show authorbox at bottom of pages if true
   toc = true # Enable Table of Contents
   post_navigation = true # Show post navigation at bottom of pages if true
@@ -46,9 +46,9 @@ googleAnalytics = "" # Enable Google Analytics by entering your tracking id
 [Params.widgets.social]
   # Enable parts of social widget
   # facebook = "username"
-  # twitter = "username"
+  twitter = "hujianxincn"
   # instagram = "username"
-  # linkedin = "username"
+  linkedin = "hujianxin"
   # telegram = "username"
   github = "hujianxin"
   bitbucket = "hujianxin"
@@ -60,6 +60,6 @@ googleAnalytics = "" # Enable Google Analytics by entering your tracking id
 #   url = "https://youtube.com/user/username"
 #   icon = "youtube.svg" # Optional. Path relative to "layouts/partials"
 
-[[Params.widgets.social.custom]]
-  title = "My Home Page"
-  url = "http://example.com"
+# [[Params.widgets.social.custom]]
+#   title = "My Home Page"
+#   url = "http://example.com"
