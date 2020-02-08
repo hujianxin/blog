@@ -3,6 +3,7 @@ title = "Just4Fun"
 languageCode = "en-us"
 paginate = "10" # Number of posts per page
 theme = "Mainroad"
+publishDir = "docs"
 disqusShortname = "" # Enable Disqus comments by entering your Disqus shortname
 googleAnalytics = "" # Enable Google Analytics by entering your tracking id
 
