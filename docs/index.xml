@@ -2,21 +2,21 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>Just4Fun</title>
-    <link>blog/</link>
+    <link>https://hujianxin.github.io/blog/</link>
     <description>Recent content on Just4Fun</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
     <lastBuildDate>Sat, 08 Feb 2020 00:00:00 +0000</lastBuildDate>
     
-	<atom:link href="blog/index.xml" rel="self" type="application/rss+xml" />
+	<atom:link href="https://hujianxin.github.io/blog/index.xml" rel="self" type="application/rss+xml" />
     
     
     <item>
       <title>About</title>
-      <link>blog/about/</link>
+      <link>https://hujianxin.github.io/blog/about/</link>
       <pubDate>Sat, 08 Feb 2020 00:00:00 +0000</pubDate>
       
-      <guid>blog/about/</guid>
+      <guid>https://hujianxin.github.io/blog/about/</guid>
       <description>我是hujianxin, 目前就职于小米公司云平台，从事对象存储相关技术的开发和维护工作。
 这是我的个人博客，会分享一些技术为主的文章，侧重于Java、Python、Go、分布式技术、编程工具等。偶尔也会分享一些生活中的琐碎感悟。希望我的分享会对你有帮助。
 My name is hujianxin, nowadays, I&amp;rsquo;m working at XiaoMi to do some ObjectStorage tech development.
@@ -25,10 +25,10 @@ This is my person blog, I&amp;rsquo;ll post some technology-oriented articles re
     
     <item>
       <title>在Spring边缘试探</title>
-      <link>blog/posts/try-spring/</link>
+      <link>https://hujianxin.github.io/blog/posts/try-spring/</link>
       <pubDate>Wed, 03 May 2017 00:00:00 +0000</pubDate>
       
-      <guid>blog/posts/try-spring/</guid>
+      <guid>https://hujianxin.github.io/blog/posts/try-spring/</guid>
       <description>本文首发于简书，于2018年11月迁移至本博客
  虽说是Java web，但Spring已经成为了事实标准，Spring原理的深入学习，无论是在工作中，还是在面试中，都尤为重要。
 Spring的两个核心概念是IOC（控制反转）和AOP（面向切面编程）。想了解Spring的工作原理，毫无疑问，首先要从这两个概念的Spring实现入手。但是Spring源码浩如烟海，里面掺杂了太多的实现细节，入门可谓极其困难。当我正苦于难以入门时，好友介绍了tiny-spring这个开源项目，这个项目用了不到千行的代码，就将Spring的IOC、AOP的核心流程实现完毕，真是居家旅行、吹逼面试之必备呀！
