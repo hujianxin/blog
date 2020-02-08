@@ -12,6 +12,7 @@ draft: false
 
 ![spring-by-pivotal.png](https://cnbj2.fds.api.xiaomi.com/v2tool/3780192716361256736?GalaxyAccessKeyId=5411787938902&Expires=202212332102020&Signature=pbzDTCQBrceHtWVeGqKFwGIrJQk=) 
 > 本文首发于简书，于2018年11月迁移至本博客
+<!--more-->
 
 虽说是Java web，但Spring已经成为了事实标准，Spring原理的深入学习，无论是在工作中，还是在面试中，都尤为重要。
 
