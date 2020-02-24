@@ -18,11 +18,6 @@
   </url>
   
   <url>
-    <loc>https://hujianxin.github.io/blog/categories/development/</loc>
-    <lastmod>2017-05-03T00:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
     <loc>https://hujianxin.github.io/blog/tags/java/</loc>
     <lastmod>2017-05-03T00:00:00+00:00</lastmod>
   </url>
@@ -44,6 +39,11 @@
   
   <url>
     <loc>https://hujianxin.github.io/blog/posts/try-spring/</loc>
+    <lastmod>2017-05-03T00:00:00+00:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://hujianxin.github.io/blog/categories/%E5%BC%80%E5%8F%91%E8%AE%BE%E8%AE%A1/</loc>
     <lastmod>2017-05-03T00:00:00+00:00</lastmod>
   </url>
   

@@ -3,7 +3,7 @@ title: 在Spring边缘试探
 description: Spring原理初探，关于IOC和AOP
 date: 2017-05-03
 categories:
-  - "Development"
+  - "开发设计"
 tags:
   - "Java"
   - "Spring"
