@@ -6,10 +6,64 @@
     <description>Recent content in Tags on Just4Fun</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Wed, 03 May 2017 00:00:00 +0000</lastBuildDate>
+    <lastBuildDate>Thu, 18 Jun 2020 00:00:00 +0000</lastBuildDate>
     
 	<atom:link href="https://hujianxin.github.io/blog/tags/index.xml" rel="self" type="application/rss+xml" />
     
+    
+    <item>
+      <title>Fencing</title>
+      <link>https://hujianxin.github.io/blog/tags/fencing/</link>
+      <pubDate>Thu, 18 Jun 2020 00:00:00 +0000</pubDate>
+      
+      <guid>https://hujianxin.github.io/blog/tags/fencing/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>HBase</title>
+      <link>https://hujianxin.github.io/blog/tags/hbase/</link>
+      <pubDate>Thu, 18 Jun 2020 00:00:00 +0000</pubDate>
+      
+      <guid>https://hujianxin.github.io/blog/tags/hbase/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>HDFS</title>
+      <link>https://hujianxin.github.io/blog/tags/hdfs/</link>
+      <pubDate>Thu, 18 Jun 2020 00:00:00 +0000</pubDate>
+      
+      <guid>https://hujianxin.github.io/blog/tags/hdfs/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>LSM</title>
+      <link>https://hujianxin.github.io/blog/tags/lsm/</link>
+      <pubDate>Thu, 18 Jun 2020 00:00:00 +0000</pubDate>
+      
+      <guid>https://hujianxin.github.io/blog/tags/lsm/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>Zookeeper</title>
+      <link>https://hujianxin.github.io/blog/tags/zookeeper/</link>
+      <pubDate>Thu, 18 Jun 2020 00:00:00 +0000</pubDate>
+      
+      <guid>https://hujianxin.github.io/blog/tags/zookeeper/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>ZAB</title>
+      <link>https://hujianxin.github.io/blog/tags/zab/</link>
+      <pubDate>Mon, 18 May 2020 00:00:00 +0000</pubDate>
+      
+      <guid>https://hujianxin.github.io/blog/tags/zab/</guid>
+      <description></description>
+    </item>
     
     <item>
       <title>Java</title>
