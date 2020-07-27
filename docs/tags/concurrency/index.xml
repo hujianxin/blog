@@ -6,10 +6,21 @@
     <description>Recent content in Concurrency on Just4Fun</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Wed, 10 Apr 2019 00:00:00 +0000</lastBuildDate>
+    <lastBuildDate>Thu, 11 Apr 2019 00:00:00 +0000</lastBuildDate>
     
 	<atom:link href="https://hujianxin.github.io/blog/tags/concurrency/index.xml" rel="self" type="application/rss+xml" />
     
+    
+    <item>
+      <title>Java并发编程问题汇总四：ArrayList和CopyOnWriteArrayList</title>
+      <link>https://hujianxin.github.io/blog/posts/concurrency4/</link>
+      <pubDate>Thu, 11 Apr 2019 00:00:00 +0000</pubDate>
+      
+      <guid>https://hujianxin.github.io/blog/posts/concurrency4/</guid>
+      <description>&lt;p&gt;Java编程中，ArrayList是最常用的数据结构之一。&lt;/p&gt;
+&lt;p&gt;ArrayList使用了数组来实现List结构。读取和插入速度非常快，删除效率较低，因为设计到了数据拷贝。&lt;/p&gt;
+&lt;p&gt;ArrayList用户广泛，但是不能直接使用在多线程环境下。&lt;/p&gt;</description>
+    </item>
     
     <item>
       <title>Java并发编程问题汇总三：AQS</title>

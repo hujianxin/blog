@@ -113,17 +113,27 @@
   </url>
   
   <url>
-    <loc>https://hujianxin.github.io/blog/tags/aqs/</loc>
-    <lastmod>2019-04-10T00:00:00+00:00</lastmod>
+    <loc>https://hujianxin.github.io/blog/tags/concurrency/</loc>
+    <lastmod>2019-04-11T00:00:00+00:00</lastmod>
   </url>
   
   <url>
-    <loc>https://hujianxin.github.io/blog/tags/concurrency/</loc>
-    <lastmod>2019-04-10T00:00:00+00:00</lastmod>
+    <loc>https://hujianxin.github.io/blog/tags/cow/</loc>
+    <lastmod>2019-04-11T00:00:00+00:00</lastmod>
   </url>
   
   <url>
     <loc>https://hujianxin.github.io/blog/tags/java/</loc>
+    <lastmod>2019-04-11T00:00:00+00:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://hujianxin.github.io/blog/posts/concurrency4/</loc>
+    <lastmod>2019-04-11T00:00:00+00:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://hujianxin.github.io/blog/tags/aqs/</loc>
     <lastmod>2019-04-10T00:00:00+00:00</lastmod>
   </url>
   
