@@ -33,7 +33,7 @@
 		<div class="logo">
 			<a class="logo__link" href="/blog/" title="Just4Fun" rel="home">
 				<div class="logo__title">Just4Fun</div>
-				<div class="logo__tagline">不甘于平庸，不够求富贵</div>
+				<div class="logo__tagline">不甘于平庸，不苟求富贵</div>
 			</a>
 		</div>
 		
@@ -86,7 +86,8 @@
 	</div>
 </div>
 <div class="content post__content clearfix">
-			<p>在使用ZK选主或者作为分布式锁的系统中，可能会出现脑裂问题。
+			<p><img src="https://raw.githubusercontent.com/hujianxin/pico/master/img/20200727110808.png" alt="20200727110808"></p>
+<p>在使用ZK选主或者作为分布式锁的系统中，可能会出现脑裂问题。
 原因可能是：</p>
 <ol>
 <li>节点A的假死，会让ZK认为A是真死，所以将锁让给B。但是A并不认识自己已死，复活之后会继续写目标数据。</li>
@@ -96,6 +97,7 @@
 <h2 id="hdfs-namenode如何解决脑裂问题">HDFS NameNode如何解决脑裂问题</h2>
 <p>背景： HDFS的NameNode同时只能存在一个Active节点。</p>
 <p>HDFS通过JournalNode来解决脑裂问题。</p>
+<p><img src="https://raw.githubusercontent.com/hujianxin/pico/master/img/20200727110619.png" alt="20200727110619"></p>
 <p>NameNode往JournalNode写edit log的时候，需要带上一个epoch，如果epoch比JournalNode的小，则会被拒绝。</p>
 <ol>
 <li>A节点为Active节点，假设Epoch是7</li>
@@ -206,8 +208,9 @@
 		<ul class="widget__list">
 			<li class="widget__item"><a class="widget__link" href="/blog/posts/fencing/">Fencing与脑裂</a></li>
 			<li class="widget__item"><a class="widget__link" href="/blog/posts/lsm/">LSM Tree</a></li>
-			<li class="widget__item"><a class="widget__link" href="/blog/posts/zk/">ZooKeeper选举</a></li>
-			<li class="widget__item"><a class="widget__link" href="/blog/posts/try-spring/">在Spring边缘试探</a></li>
+			<li class="widget__item"><a class="widget__link" href="/blog/posts/buildload/">HBase BulkLoad</a></li>
+			<li class="widget__item"><a class="widget__link" href="/blog/posts/snapshot/">HBase Snapshot</a></li>
+			<li class="widget__item"><a class="widget__link" href="/blog/posts/hbase_replication/">HBase 集群复制</a></li>
 		</ul>
 	</div>
 </div>
@@ -224,11 +227,14 @@
 <div class="widget-taglist widget">
 	<h4 class="widget__title">Tags</h4>
 	<div class="widget__content">
+		<a class="widget-taglist__link widget__link btn" href="/blog/tags/bulkload/" title="BulkLoad">BulkLoad</a>
 		<a class="widget-taglist__link widget__link btn" href="/blog/tags/fencing/" title="Fencing">Fencing</a>
 		<a class="widget-taglist__link widget__link btn" href="/blog/tags/hbase/" title="HBase">HBase</a>
 		<a class="widget-taglist__link widget__link btn" href="/blog/tags/hdfs/" title="HDFS">HDFS</a>
 		<a class="widget-taglist__link widget__link btn" href="/blog/tags/java/" title="Java">Java</a>
 		<a class="widget-taglist__link widget__link btn" href="/blog/tags/lsm/" title="LSM">LSM</a>
+		<a class="widget-taglist__link widget__link btn" href="/blog/tags/mapreduce/" title="MapReduce">MapReduce</a>
+		<a class="widget-taglist__link widget__link btn" href="/blog/tags/snapshot/" title="Snapshot">Snapshot</a>
 		<a class="widget-taglist__link widget__link btn" href="/blog/tags/spring/" title="Spring">Spring</a>
 		<a class="widget-taglist__link widget__link btn" href="/blog/tags/zab/" title="ZAB">ZAB</a>
 		<a class="widget-taglist__link widget__link btn" href="/blog/tags/zookeeper/" title="Zookeeper">Zookeeper</a>

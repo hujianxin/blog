@@ -13,7 +13,7 @@ googleAnalytics = "" # Enable Google Analytics by entering your tracking id
   avatar = "img/avatar.png"
 
 [Params]
-  subtitle = "不甘于平庸，不够求富贵" # Subtitle of your site. Used in site header
+  subtitle = "不甘于平庸，不苟求富贵" # Subtitle of your site. Used in site header
   description = "hujianxin's Personal blog about everything" # Site description. Used in meta description
   copyright = "hujianxin" # Footer copyright holder, otherwise will use site title
   opengraph = true # Enable OpenGraph if true

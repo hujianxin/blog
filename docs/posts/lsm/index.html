@@ -33,7 +33,7 @@
 		<div class="logo">
 			<a class="logo__link" href="/blog/" title="Just4Fun" rel="home">
 				<div class="logo__title">Just4Fun</div>
-				<div class="logo__tagline">不甘于平庸，不够求富贵</div>
+				<div class="logo__tagline">不甘于平庸，不苟求富贵</div>
 			</a>
 		</div>
 		
@@ -91,7 +91,7 @@
 	</div>
 </div>
 <div class="content post__content clearfix">
-			<p><img src="https://github.com/hujianxin/blog/blob/master/static/img/lsm_tree.png" alt="LSM"></p>
+			<p><img src="https://raw.githubusercontent.com/hujianxin/pico/master/img/lsm_tree.png" alt="lsm_tree"></p>
 <p>LSM Tree是HBase使用的数据存储结构。主要原因是，HBase基于HDFS作为底层文件存储，而HDFS不支持随机写，只支持顺序写。而LSM Tree可以轻松应对这种使用场景。</p>
 <p>随机写磁盘会导致大量的磁盘寻道，影响写入效率，LSM本身是顺序写入，在磁盘写入方面具有先天优势。另外，有些写多读少的应用场景也非常适合使用LSM Tree。</p>
 <h2 id="hbase的lsm-tree实现">HBase的LSM Tree实现</h2>
@@ -105,7 +105,7 @@
 <p>major compact，是将整个DiskSotre合并成一个HFile，合并过程中，会删除：过期数据、已经打了删除标记的数据、版本号超额的数据。</p>
 <h2 id="分层压缩leveldb的lsm-tree实现">分层压缩：LevelDB的LSM Tree实现</h2>
 <p>LevelDB也是使用了LSM Tree的设计，但是他的compact过程与HBase不同，采用了分层压缩的设计。</p>
-<p><img src="https://github.com/hujianxin/blog/blob/master/static/img/LSM_LEVEL.png" alt="level"></p>
+<p><img src="https://raw.githubusercontent.com/hujianxin/pico/master/img/LSM_LEVEL.png" alt="LSM_LEVEL"></p>
 <p>如上图所示：</p>
 <ol>
 <li>Level0层，是由ImmutableMem Table dump出来的。所以Level0层不同文件可能会有重叠的。</li>
@@ -141,7 +141,7 @@
 
 <nav class="post-nav flex">
 	<div class="post-nav__item post-nav__item--prev">
-		<a class="post-nav__link" href="/blog/posts/zk/" rel="prev"><span class="post-nav__caption">«&thinsp;Previous</span><p class="post-nav__post-title">ZooKeeper选举</p></a>
+		<a class="post-nav__link" href="/blog/posts/buildload/" rel="prev"><span class="post-nav__caption">«&thinsp;Previous</span><p class="post-nav__post-title">HBase BulkLoad</p></a>
 	</div>
 	<div class="post-nav__item post-nav__item--next">
 		<a class="post-nav__link" href="/blog/posts/fencing/" rel="next"><span class="post-nav__caption">Next&thinsp;»</span><p class="post-nav__post-title">Fencing与脑裂</p></a>
@@ -188,8 +188,9 @@
 		<ul class="widget__list">
 			<li class="widget__item"><a class="widget__link" href="/blog/posts/fencing/">Fencing与脑裂</a></li>
 			<li class="widget__item"><a class="widget__link" href="/blog/posts/lsm/">LSM Tree</a></li>
-			<li class="widget__item"><a class="widget__link" href="/blog/posts/zk/">ZooKeeper选举</a></li>
-			<li class="widget__item"><a class="widget__link" href="/blog/posts/try-spring/">在Spring边缘试探</a></li>
+			<li class="widget__item"><a class="widget__link" href="/blog/posts/buildload/">HBase BulkLoad</a></li>
+			<li class="widget__item"><a class="widget__link" href="/blog/posts/snapshot/">HBase Snapshot</a></li>
+			<li class="widget__item"><a class="widget__link" href="/blog/posts/hbase_replication/">HBase 集群复制</a></li>
 		</ul>
 	</div>
 </div>
@@ -206,11 +207,14 @@
 <div class="widget-taglist widget">
 	<h4 class="widget__title">Tags</h4>
 	<div class="widget__content">
+		<a class="widget-taglist__link widget__link btn" href="/blog/tags/bulkload/" title="BulkLoad">BulkLoad</a>
 		<a class="widget-taglist__link widget__link btn" href="/blog/tags/fencing/" title="Fencing">Fencing</a>
 		<a class="widget-taglist__link widget__link btn" href="/blog/tags/hbase/" title="HBase">HBase</a>
 		<a class="widget-taglist__link widget__link btn" href="/blog/tags/hdfs/" title="HDFS">HDFS</a>
 		<a class="widget-taglist__link widget__link btn" href="/blog/tags/java/" title="Java">Java</a>
 		<a class="widget-taglist__link widget__link btn" href="/blog/tags/lsm/" title="LSM">LSM</a>
+		<a class="widget-taglist__link widget__link btn" href="/blog/tags/mapreduce/" title="MapReduce">MapReduce</a>
+		<a class="widget-taglist__link widget__link btn" href="/blog/tags/snapshot/" title="Snapshot">Snapshot</a>
 		<a class="widget-taglist__link widget__link btn" href="/blog/tags/spring/" title="Spring">Spring</a>
 		<a class="widget-taglist__link widget__link btn" href="/blog/tags/zab/" title="ZAB">ZAB</a>
 		<a class="widget-taglist__link widget__link btn" href="/blog/tags/zookeeper/" title="Zookeeper">Zookeeper</a>

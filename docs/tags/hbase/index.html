@@ -33,7 +33,7 @@
 		<div class="logo">
 			<a class="logo__link" href="/blog/" title="Just4Fun" rel="home">
 				<div class="logo__title">Just4Fun</div>
-				<div class="logo__tagline">不甘于平庸，不够求富贵</div>
+				<div class="logo__tagline">不甘于平庸，不苟求富贵</div>
 			</a>
 		</div>
 		
@@ -91,6 +91,94 @@ major compact major compact，是将整个DiskSotre合并成一个HFile，合并
 如上图所示：
  Level0层，是由ImmutableMem Table dump出来的。所以Level0层不同文件可能会有重叠的。 Level n是由level n-1和level n层compact出来的。 读数据时，顺序是内存-&gt;Level0-&gt;Level1-&gt;Level&hellip;，在查询Level0时，需要查询多个文件，查询其他层时，只需要查询特定文件。  
 	</div>
+</article><article class="list__item post">
+	<header class="list__header">
+		<h3 class="list__title post__title ">
+			<a href="/blog/posts/buildload/" rel="bookmark">
+			HBase BulkLoad
+			</a>
+		</h3>
+		<div class="list__meta meta">
+<div class="meta__item-datetime meta__item">
+	<svg class="meta__icon icon icon-time" width="16" height="14" viewBox="0 0 30 28"><path d="M15 0C7 0 1 6 1 14s6 14 14 14 14-6 14-14S23 0 15 0zm0 25C9 25 4 20 4 14S9 3 15 3s11 5 11 11-5 11-11 11zm1-18h-2v8.4l6.8 4.4L22 18l-6-3.8V7z"/></svg>
+	<time class="meta__text" datetime="2020-05-18T00:00:00">2020-05-18</time>
+</div>
+
+<div class="meta__item-categories meta__item">
+	<svg class="meta__icon icon icon-category" width="16" height="16" viewBox="0 0 16 16"><path d="m7 2l1 2h8v11h-16v-13z"/></svg>
+	<span class="meta__text"><a class="meta__link" href="/blog/categories/%E5%BC%80%E5%8F%91%E8%AE%BE%E8%AE%A1/" rel="category">开发设计</a>
+	</span>
+</div></div>
+	</header>
+	<div class="content list__excerpt post__content clearfix">
+		在使用HBase的业务中，很多对HBase写数据的离线任务，因为数据量非常大，可能会造成下面的结果：
+ RegionServer频繁flush，从而频繁compact、split，进而影响集群性能。 RegionServer频繁gc。 抢占大量Cpu、内存、IO、带宽资源。 甚至会耗尽RegionServer的线程，导致集群阻塞。  以上问题，会影响到离线任务之外的线上任务，很多情况下，这是不能容忍的。所以HBase提供了BulkLoad模式解决这个问题。
+BulkLoad方法是通过MapReduce来直接写HFile，跳过了HBase的处理流程。就像在读HBase时候使用Snapshot一样。
+BulkLoad核心流程 BulkLoad主要分为两大阶段：HFile生成阶段、HFile导入阶段。
+一般去网上搜或者书上介绍的关于BulkLoad相关的文章，在介绍File生成的时候，都会介绍一种非常简单通用的方式，也就是通过MapReduce的方式生成HFile，但是其实HBase核心的BulkLoad过程是不包括HFile生成的，而是HFile导入阶段。
+所以说，HFile的生成可以是任何形式的，并不一定是大家所使用的MapReduce形式。
+下上面我分别说一下两种不同的方式。
+MapReduce生成HFile 因为官方提供了HFileOutputFormat2.configureIncrementalLoad这个工具，所以使用MapReduce方式非常简单，核心代码如下：
+public class BulkLoadJob { static Logger logger = LoggerFactory.getLogger(BulkLoadJob.class); public static class BulkLoadMap extends Mapper&lt;LongWritable, Text, ImmutableBytesWritable, Put&gt; { public void map(LongWritable key, Text value, Context context) throws IOException, InterruptedException { String[] valueStrSplit = value.toString().split(&#34;,&#34;); String hkey = valueStrSplit[0]; String family = valueStrSplit[1].split(&#34;:&#34;)[0]; String column = valueStrSplit[1].split(&#34;:&#34;)[1]; String hvalue = valueStrSplit[2]; /** * 只支持单列族并发写入，如果是多个列族得多write一次 */ final byte[] rowKey = Bytes.
+	</div>
+	<div class="list__footer clearfix">
+		<a class="list__footer-readmore btn" href="/blog/posts/buildload/">Read more…</a>
+	</div>
+</article><article class="list__item post">
+	<header class="list__header">
+		<h3 class="list__title post__title ">
+			<a href="/blog/posts/snapshot/" rel="bookmark">
+			HBase Snapshot
+			</a>
+		</h3>
+		<div class="list__meta meta">
+<div class="meta__item-datetime meta__item">
+	<svg class="meta__icon icon icon-time" width="16" height="14" viewBox="0 0 30 28"><path d="M15 0C7 0 1 6 1 14s6 14 14 14 14-6 14-14S23 0 15 0zm0 25C9 25 4 20 4 14S9 3 15 3s11 5 11 11-5 11-11 11zm1-18h-2v8.4l6.8 4.4L22 18l-6-3.8V7z"/></svg>
+	<time class="meta__text" datetime="2020-05-18T00:00:00">2020-05-18</time>
+</div>
+
+<div class="meta__item-categories meta__item">
+	<svg class="meta__icon icon icon-category" width="16" height="16" viewBox="0 0 16 16"><path d="m7 2l1 2h8v11h-16v-13z"/></svg>
+	<span class="meta__text"><a class="meta__link" href="/blog/categories/%E5%BC%80%E5%8F%91%E8%AE%BE%E8%AE%A1/" rel="category">开发设计</a>
+	</span>
+</div></div>
+	</header>
+	<div class="content list__excerpt post__content clearfix">
+		之前将过BulkLoad可以离线的写入HBase，并且不会出发HBase的写流程，从而减轻HBase的压力、提高写入速度。在读取HBase的时候，也有一个机制，可以直接绕过HBase的读取流程，直接读取HFile，也就是Snapshot机制。
+Snapshot原本是为了快速备份HBase设计的。但是我们使用这个功能来快速扫表，效果惊艳。
+Snapshot技术基础原理 为什么Snapshot可以做到这么快呢？主要是因为HBase给表打Snapshot的时候，并没有真正的备份数据，生成了原始数据的一个指针。
+能这样做得益与HBase落盘的数据都不会再修改，直到compact。
+所以Snapshot的总体流程是这样的：
+ Memstore flush生成新文件 对当前所有的Hfile建立引用指针。  Snapshot具体流程 Snapshot是由客户端发起的，但是真正执行这一动作的是RegionServer，RegionServer非常多，这会导致Snapshot的事务问题，HBase通过两阶段提交来解决这个问题：
+我们都知道两阶段提交的过程包括：
+ 协调者发起prepare，等待ack 执行者准备环境，发送ack 协调者收到所有的ack之后，发起commit  具体到Snapshot的实现中，两阶段提交主要是通过Zk为媒介进行的。
+Snapshot具体实现 前面将了Snapshot的流程，其中重要概念就是这个引用文件。
+引用文件主要包含了region的元数据，HFile文件名等。
+Snapshot之后遇到Compaction 前面说到，snapshot文件只是真实HFile的引用文件，如果发生compaction之后，原文件不在了，snapshot如何保证不失效的呢？
+HBase 的做法很简单，就是在compact之前，将原始数据转移到archive目录里面。
+	</div>
+</article><article class="list__item post">
+	<header class="list__header">
+		<h3 class="list__title post__title ">
+			<a href="/blog/posts/hbase_replication/" rel="bookmark">
+			HBase 集群复制
+			</a>
+		</h3>
+		<div class="list__meta meta">
+<div class="meta__item-datetime meta__item">
+	<svg class="meta__icon icon icon-time" width="16" height="14" viewBox="0 0 30 28"><path d="M15 0C7 0 1 6 1 14s6 14 14 14 14-6 14-14S23 0 15 0zm0 25C9 25 4 20 4 14S9 3 15 3s11 5 11 11-5 11-11 11zm1-18h-2v8.4l6.8 4.4L22 18l-6-3.8V7z"/></svg>
+	<time class="meta__text" datetime="2020-05-18T00:00:00">2020-05-18</time>
+</div>
+
+<div class="meta__item-categories meta__item">
+	<svg class="meta__icon icon icon-category" width="16" height="16" viewBox="0 0 16 16"><path d="m7 2l1 2h8v11h-16v-13z"/></svg>
+	<span class="meta__text"><a class="meta__link" href="/blog/categories/%E5%BC%80%E5%8F%91%E8%AE%BE%E8%AE%A1/" rel="category">开发设计</a>
+	</span>
+</div></div>
+	</header>
+	<div class="content list__excerpt post__content clearfix">
+		
+	</div>
 </article>
 </main>
 
@@ -112,8 +200,9 @@ major compact major compact，是将整个DiskSotre合并成一个HFile，合并
 		<ul class="widget__list">
 			<li class="widget__item"><a class="widget__link" href="/blog/posts/fencing/">Fencing与脑裂</a></li>
 			<li class="widget__item"><a class="widget__link" href="/blog/posts/lsm/">LSM Tree</a></li>
-			<li class="widget__item"><a class="widget__link" href="/blog/posts/zk/">ZooKeeper选举</a></li>
-			<li class="widget__item"><a class="widget__link" href="/blog/posts/try-spring/">在Spring边缘试探</a></li>
+			<li class="widget__item"><a class="widget__link" href="/blog/posts/buildload/">HBase BulkLoad</a></li>
+			<li class="widget__item"><a class="widget__link" href="/blog/posts/snapshot/">HBase Snapshot</a></li>
+			<li class="widget__item"><a class="widget__link" href="/blog/posts/hbase_replication/">HBase 集群复制</a></li>
 		</ul>
 	</div>
 </div>
@@ -130,11 +219,14 @@ major compact major compact，是将整个DiskSotre合并成一个HFile，合并
 <div class="widget-taglist widget">
 	<h4 class="widget__title">Tags</h4>
 	<div class="widget__content">
+		<a class="widget-taglist__link widget__link btn" href="/blog/tags/bulkload/" title="BulkLoad">BulkLoad</a>
 		<a class="widget-taglist__link widget__link btn" href="/blog/tags/fencing/" title="Fencing">Fencing</a>
 		<a class="widget-taglist__link widget__link btn" href="/blog/tags/hbase/" title="HBase">HBase</a>
 		<a class="widget-taglist__link widget__link btn" href="/blog/tags/hdfs/" title="HDFS">HDFS</a>
 		<a class="widget-taglist__link widget__link btn" href="/blog/tags/java/" title="Java">Java</a>
 		<a class="widget-taglist__link widget__link btn" href="/blog/tags/lsm/" title="LSM">LSM</a>
+		<a class="widget-taglist__link widget__link btn" href="/blog/tags/mapreduce/" title="MapReduce">MapReduce</a>
+		<a class="widget-taglist__link widget__link btn" href="/blog/tags/snapshot/" title="Snapshot">Snapshot</a>
 		<a class="widget-taglist__link widget__link btn" href="/blog/tags/spring/" title="Spring">Spring</a>
 		<a class="widget-taglist__link widget__link btn" href="/blog/tags/zab/" title="ZAB">ZAB</a>
 		<a class="widget-taglist__link widget__link btn" href="/blog/tags/zookeeper/" title="Zookeeper">Zookeeper</a>

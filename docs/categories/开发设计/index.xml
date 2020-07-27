@@ -50,6 +50,52 @@ major compact major compact，是将整个DiskSotre合并成一个HFile，合并
     </item>
     
     <item>
+      <title>HBase BulkLoad</title>
+      <link>https://hujianxin.github.io/blog/posts/buildload/</link>
+      <pubDate>Mon, 18 May 2020 00:00:00 +0000</pubDate>
+      
+      <guid>https://hujianxin.github.io/blog/posts/buildload/</guid>
+      <description>在使用HBase的业务中，很多对HBase写数据的离线任务，因为数据量非常大，可能会造成下面的结果：
+ RegionServer频繁flush，从而频繁compact、split，进而影响集群性能。 RegionServer频繁gc。 抢占大量Cpu、内存、IO、带宽资源。 甚至会耗尽RegionServer的线程，导致集群阻塞。  以上问题，会影响到离线任务之外的线上任务，很多情况下，这是不能容忍的。所以HBase提供了BulkLoad模式解决这个问题。
+BulkLoad方法是通过MapReduce来直接写HFile，跳过了HBase的处理流程。就像在读HBase时候使用Snapshot一样。
+BulkLoad核心流程 BulkLoad主要分为两大阶段：HFile生成阶段、HFile导入阶段。
+一般去网上搜或者书上介绍的关于BulkLoad相关的文章，在介绍File生成的时候，都会介绍一种非常简单通用的方式，也就是通过MapReduce的方式生成HFile，但是其实HBase核心的BulkLoad过程是不包括HFile生成的，而是HFile导入阶段。
+所以说，HFile的生成可以是任何形式的，并不一定是大家所使用的MapReduce形式。
+下上面我分别说一下两种不同的方式。
+MapReduce生成HFile 因为官方提供了HFileOutputFormat2.configureIncrementalLoad这个工具，所以使用MapReduce方式非常简单，核心代码如下：
+public class BulkLoadJob { static Logger logger = LoggerFactory.getLogger(BulkLoadJob.class); public static class BulkLoadMap extends Mapper&amp;lt;LongWritable, Text, ImmutableBytesWritable, Put&amp;gt; { public void map(LongWritable key, Text value, Context context) throws IOException, InterruptedException { String[] valueStrSplit = value.toString().split(&amp;#34;,&amp;#34;); String hkey = valueStrSplit[0]; String family = valueStrSplit[1].split(&amp;#34;:&amp;#34;)[0]; String column = valueStrSplit[1].split(&amp;#34;:&amp;#34;)[1]; String hvalue = valueStrSplit[2]; /** * 只支持单列族并发写入，如果是多个列族得多write一次 */ final byte[] rowKey = Bytes.</description>
+    </item>
+    
+    <item>
+      <title>HBase Snapshot</title>
+      <link>https://hujianxin.github.io/blog/posts/snapshot/</link>
+      <pubDate>Mon, 18 May 2020 00:00:00 +0000</pubDate>
+      
+      <guid>https://hujianxin.github.io/blog/posts/snapshot/</guid>
+      <description>之前将过BulkLoad可以离线的写入HBase，并且不会出发HBase的写流程，从而减轻HBase的压力、提高写入速度。在读取HBase的时候，也有一个机制，可以直接绕过HBase的读取流程，直接读取HFile，也就是Snapshot机制。
+Snapshot原本是为了快速备份HBase设计的。但是我们使用这个功能来快速扫表，效果惊艳。
+Snapshot技术基础原理 为什么Snapshot可以做到这么快呢？主要是因为HBase给表打Snapshot的时候，并没有真正的备份数据，生成了原始数据的一个指针。
+能这样做得益与HBase落盘的数据都不会再修改，直到compact。
+所以Snapshot的总体流程是这样的：
+ Memstore flush生成新文件 对当前所有的Hfile建立引用指针。  Snapshot具体流程 Snapshot是由客户端发起的，但是真正执行这一动作的是RegionServer，RegionServer非常多，这会导致Snapshot的事务问题，HBase通过两阶段提交来解决这个问题：
+我们都知道两阶段提交的过程包括：
+ 协调者发起prepare，等待ack 执行者准备环境，发送ack 协调者收到所有的ack之后，发起commit  具体到Snapshot的实现中，两阶段提交主要是通过Zk为媒介进行的。
+Snapshot具体实现 前面将了Snapshot的流程，其中重要概念就是这个引用文件。
+引用文件主要包含了region的元数据，HFile文件名等。
+Snapshot之后遇到Compaction 前面说到，snapshot文件只是真实HFile的引用文件，如果发生compaction之后，原文件不在了，snapshot如何保证不失效的呢？
+HBase 的做法很简单，就是在compact之前，将原始数据转移到archive目录里面。</description>
+    </item>
+    
+    <item>
+      <title>HBase 集群复制</title>
+      <link>https://hujianxin.github.io/blog/posts/hbase_replication/</link>
+      <pubDate>Mon, 18 May 2020 00:00:00 +0000</pubDate>
+      
+      <guid>https://hujianxin.github.io/blog/posts/hbase_replication/</guid>
+      <description></description>
+    </item>
+    
+    <item>
       <title>ZooKeeper选举</title>
       <link>https://hujianxin.github.io/blog/posts/zk/</link>
       <pubDate>Mon, 18 May 2020 00:00:00 +0000</pubDate>
@@ -59,6 +105,19 @@ major compact major compact，是将整个DiskSotre合并成一个HFile，合并
 未Commit过的消息对客户端不可见 新Leader会通过zxid判断，将Follower中未Commit，也未过半的消息删除。
 如何利用ZK选主（分布式锁原理等同） 概念 zk作为选主工具，主要依赖与这两种概念：
  Persist节点和Ephemeral节点分类，其中Ephemeral节点会在客户端与zk断开session连接时，自动删除。这是选主的必备特性，用于广播leader宕机事件。 Sequence节点和Non-Sequence节点分类，这两者用于决定使用公平选主、非公平选主。 其中，Sequence是公平选主， 因为Leader宕机之后，会按顺序通知下一个节点自动成为Leader。而Non-Sequence是非公平选主，Leader宕机之后，会通知所有节点，进行竞争，重新竞选Leader。  </description>
+    </item>
+    
+    <item>
+      <title>MapReduce</title>
+      <link>https://hujianxin.github.io/blog/posts/mapreduce/</link>
+      <pubDate>Sat, 08 Jun 2019 00:00:00 +0000</pubDate>
+      
+      <guid>https://hujianxin.github.io/blog/posts/mapreduce/</guid>
+      <description>MapReduce是三篇经典分布式论文中与关于批量计算的一篇，相比之下，MapReduce较为容易理解。对于MapReduce，我了解不够深入，仅限于阅读过论文，写过简单的HadoopMapReduce程序，完成了6.824的模拟例题。下面，我将会简单整理一下我对MapReduce的理解。
+MapReduce编程模型 MapReduce分为两个阶段：Map阶段、Reduce阶段。
+Map程序有成千上万个，一般情况运行在成千上万个机器上面。Map程序负责将用户数据读入，生成临时的key value pair。Reduce程序负责将生成的临时kv pair按照用户的意图聚合，最后写入指定地点。如下图所示：
+运行流程  用户将Job提交给Master Master负责分配任务给Map Map各自读取自己需要的数据，运行，将数据结果放到本地内存 Map程序中，如果数据足够多时，flush到本地文件。Map程序最终产生R个临时文件。 Map运行完成后，通知Master结果信息。 Master通知Reduce程序运行，以及临时文件的位置。 Reduce主动拉取文件。 Reduce将结果写入到本地临时目录。 Reduce运行完成后，将临时目录重命名为目标目录 Reduce将运行结果通知Master  容错 Worker  Master周期性ping每个worker，如果超时，则表示次work失效 失效的Map worker负责的所有mapreduce状态都将会被重置，并且重新调度，并通知相关的reduce worker 失效的Reduce worker，如果正在运行，则被重新调度，如果完成，则忽略。  Master 一般而言，都是直接失败。
+调度优化  尽量将输入与Map worker放到本地或者邻近的地方 理论上M和R越大越好，但是实际得看具体情况 使用combiner  </description>
     </item>
     
     <item>
