@@ -9,6 +9,7 @@ tags:
   - "ZAB"
 draft: false
 ---
+![20200727110914](https://raw.githubusercontent.com/hujianxin/pico/master/img/20200727110914.png)
 
 ## Zk的快速选举以及一致性保证
 ### 概念

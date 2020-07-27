@@ -10,6 +10,7 @@ tags:
   - "Fencing"
 draft: false
 ---
+![20200727110808](https://raw.githubusercontent.com/hujianxin/pico/master/img/20200727110808.png)
 
 在使用ZK选主或者作为分布式锁的系统中，可能会出现脑裂问题。
 原因可能是：
@@ -22,6 +23,8 @@ draft: false
 背景： HDFS的NameNode同时只能存在一个Active节点。
 
 HDFS通过JournalNode来解决脑裂问题。
+
+![20200727110619](https://raw.githubusercontent.com/hujianxin/pico/master/img/20200727110619.png)
 
 NameNode往JournalNode写edit log的时候，需要带上一个epoch，如果epoch比JournalNode的小，则会被拒绝。
 1. A节点为Active节点，假设Epoch是7

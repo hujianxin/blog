@@ -10,7 +10,7 @@ tags:
 draft: false
 ---
 
-![LSM](https://github.com/hujianxin/blog/blob/master/static/img/lsm_tree.png)
+![lsm_tree](https://raw.githubusercontent.com/hujianxin/pico/master/img/lsm_tree.png)
 
 LSM Tree是HBase使用的数据存储结构。主要原因是，HBase基于HDFS作为底层文件存储，而HDFS不支持随机写，只支持顺序写。而LSM Tree可以轻松应对这种使用场景。
 
@@ -33,7 +33,7 @@ major compact，是将整个DiskSotre合并成一个HFile，合并过程中，�
 ## 分层压缩：LevelDB的LSM Tree实现
 LevelDB也是使用了LSM Tree的设计，但是他的compact过程与HBase不同，采用了分层压缩的设计。
 
-![level](https://github.com/hujianxin/blog/blob/master/static/img/LSM_LEVEL.png)
+![LSM_LEVEL](https://raw.githubusercontent.com/hujianxin/pico/master/img/LSM_LEVEL.png)
 
 如上图所示：
 1. Level0层，是由ImmutableMem Table dump出来的。所以Level0层不同文件可能会有重叠的。

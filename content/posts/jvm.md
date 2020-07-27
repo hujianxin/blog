@@ -120,12 +120,13 @@ JVM中的新生代算法都是使用复制算法，一个重要的原因来自�
 5. 空间分配担保：Minor GC之前，如果老年代最大的连续空间不足以放下新生代所有的对象，则Full GC
 
 ## 类文件结构
-![类文件结构](https://github.com/hujianxin/blog/blob/master/static/img/class.png)
+
+![class](https://raw.githubusercontent.com/hujianxin/pico/master/img/class.png)
 
 ## 类加载机制
 ### 类加载时机
 类加载到卸载，经历了下面过程：加载-》验证-》准备-》解析-》初始化-》使用-》卸载
-![类加载过程](https://github.com/hujianxin/blog/blob/master/static/img/loading.png)
+![loading](https://raw.githubusercontent.com/hujianxin/pico/master/img/loading.png)
 
 下面情况下开始类加载：
 1. 遇到new，getstatic，putstatic，invokestatic这4个指令的时候
