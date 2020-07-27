@@ -1,0 +1,484 @@
+<!DOCTYPE html>
+<html class="no-js" lang="en-us">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<title>Java并发编程问题汇总一：AQS - Just4Fun</title>
+	<script>(function(d,e){d[e]=d[e].replace("no-js","js");})(document.documentElement,"className");</script>
+	<meta name="description" content="AQS">
+	<meta property="og:title" content="Java并发编程问题汇总一：AQS" />
+<meta property="og:description" content="AQS" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://hujianxin.github.io/blog/posts/concurrency3/" />
+<meta property="article:published_time" content="2019-06-08T00:00:00+00:00" />
+<meta property="article:modified_time" content="2019-06-08T00:00:00+00:00" />
+
+	<meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="Java并发编程问题汇总一：AQS"/>
+<meta name="twitter:description" content="AQS"/>
+
+	<link rel="dns-prefetch" href="//fonts.googleapis.com">
+	<link rel="dns-prefetch" href="//fonts.gstatic.com">
+	<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:400,400i,700">
+	<link rel="stylesheet" href="/blog/css/style.css">
+	<link rel="stylesheet" href="/blog/css/custom.css">
+	<link rel="shortcut icon" href="/blog/favicon.ico">
+		
+</head>
+<body class="body">
+	<div class="container container--outer">
+		<header class="header">
+	<div class="container">
+		<div class="logo">
+			<a class="logo__link" href="/blog/" title="Just4Fun" rel="home">
+				<div class="logo__title">Just4Fun</div>
+				<div class="logo__tagline">不甘于平庸，不苟求富贵</div>
+			</a>
+		</div>
+		
+<nav class="menu">
+	<button class="menu__btn" aria-haspopup="true" aria-expanded="false" tabindex="0">
+		<span class="menu__btn-title" tabindex="-1">Menu</span>
+	</button>
+	<ul class="menu__list">
+		<li class="menu__item">
+			<a class="menu__link" href="/blog/about/">
+				
+				<span class="menu__text">About</span>
+				
+			</a>
+		</li>
+	</ul>
+</nav>
+
+	</div>
+</header>
+		<div class="wrapper flex">
+			<div class="primary">
+			
+<main class="main" role="main">
+	<article class="post">
+		<header class="post__header">
+			<h1 class="post__title">Java并发编程问题汇总一：AQS</h1>
+			<div class="post__meta meta">
+<div class="meta__item-datetime meta__item">
+	<svg class="meta__icon icon icon-time" width="16" height="14" viewBox="0 0 30 28"><path d="M15 0C7 0 1 6 1 14s6 14 14 14 14-6 14-14S23 0 15 0zm0 25C9 25 4 20 4 14S9 3 15 3s11 5 11 11-5 11-11 11zm1-18h-2v8.4l6.8 4.4L22 18l-6-3.8V7z"/></svg>
+	<time class="meta__text" datetime="2019-06-08T00:00:00">2019-06-08</time>
+</div>
+
+<div class="meta__item-categories meta__item">
+	<svg class="meta__icon icon icon-category" width="16" height="16" viewBox="0 0 16 16"><path d="m7 2l1 2h8v11h-16v-13z"/></svg>
+	<span class="meta__text"><a class="meta__link" href="/blog/categories/%E5%BC%80%E5%8F%91%E8%AE%BE%E8%AE%A1/" rel="category">开发设计</a>
+	</span>
+</div></div>
+		</header>
+<div class="post__toc toc">
+	<div class="toc__title">Page content</div>
+	<div class="toc__menu">
+		<nav id="TableOfContents">
+  <ul>
+    <li><a href="#引入reentrantlocknonretrantlockreentrantreadwritelock">引入：ReentrantLock、NonretrantLock、ReentrantReadWriteLock</a>
+      <ul>
+        <li><a href="#公平锁与非公平锁">公平锁与非公平锁</a></li>
+        <li><a href="#可重入锁与不可重入锁">可重入锁与不可重入锁</a></li>
+        <li><a href="#独占锁与共享锁">独占锁与共享锁</a></li>
+      </ul>
+    </li>
+    <li><a href="#aqs">AQS</a></li>
+    <li><a href="#condition">Condition</a></li>
+    <li><a href="#countdownlatch">CountDownLatch</a></li>
+    <li><a href="#其他">其他</a></li>
+    <li><a href="#参考">参考</a></li>
+  </ul>
+</nav>
+	</div>
+</div>
+<div class="content post__content clearfix">
+			<p>上一篇，我们了解了Java自带synchronized锁的一些相关知识，本篇文章将会聚焦在concurrent中，所有锁类型都会用到的工具类：AQS（AbstractQueuedSynchronizer），看看concurrent包中的ReentrantLock、CountDownLatch等工具都是如何实现的。</p>
+<h2 id="引入reentrantlocknonretrantlockreentrantreadwritelock">引入：ReentrantLock、NonretrantLock、ReentrantReadWriteLock</h2>
+<h3 id="公平锁与非公平锁">公平锁与非公平锁</h3>
+<p>为了方面后面介绍AQS，我们先看一下ReentrantLock是如何使用AQS来完成自己功能的。先了解AQS的使用，再了解AQS的原理，往往学习效率更高。</p>
+<p>ReentrantLock是concurrent包里提供的可重入锁。它提供了公平模式和非公平模式：</p>
+<ol>
+<li>公平模式：根据申请顺序，线程会进入一个队列。队首的线程出队（释放锁）之后，下一个线程会获取到锁。这种调度方式的优点是，不会出现饥饿现象。缺点是吞吐低。</li>
+<li>非公平模式：线程获取锁的时候，会直接尝试获取锁（插队），获取不到才需要去排队。</li>
+</ol>
+<p><img src="https://raw.githubusercontent.com/hujianxin/pico/master/img/20200727144207.png" alt="20200727144207"></p>
+<p>用户可以在构造函数中，指定是否使用公平模式：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#66d9ef">public</span> <span style="color:#a6e22e">ReentrantLock</span><span style="color:#f92672">(</span><span style="color:#66d9ef">boolean</span> fair<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+    sync <span style="color:#f92672">=</span> fair <span style="color:#f92672">?</span> <span style="color:#66d9ef">new</span> FairSync<span style="color:#f92672">()</span> <span style="color:#f92672">:</span> <span style="color:#66d9ef">new</span> NonfairSync<span style="color:#f92672">();</span>
+<span style="color:#f92672">}</span>
+</code></pre></div><p>通过上面可知，公平模式和非公平模式的不同点在与一个叫sync的东西，那这个sync是个什么东西呢？通过下面的代码可以看出来，Sync就是一个抽象类，他继承了AQS，在AQS提供的基础设施的基础上，完成了ReentrantLock另外的基础设施。</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#66d9ef">abstract</span> <span style="color:#66d9ef">static</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">Sync</span> <span style="color:#66d9ef">extends</span> AbstractQueuedSynchronizer <span style="color:#f92672">{</span>
+  <span style="color:#75715e">// ...省略
+</span><span style="color:#75715e"></span><span style="color:#f92672">}</span>
+</code></pre></div><p>Sync类的内容后面分析，目前的当务之急是分析一下FiirSync和NonfairSync的区别，循序渐进。
+<img src="https://raw.githubusercontent.com/hujianxin/pico/master/img/20200727145954.png" alt="20200727145954"></p>
+<p>通过上面的对比图可知，公平模式比非公平模式多了一个判断语句：hasQueuedPredecessors()</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">final</span> <span style="color:#66d9ef">boolean</span> <span style="color:#a6e22e">hasQueuedPredecessors</span><span style="color:#f92672">()</span> <span style="color:#f92672">{</span>
+    <span style="color:#75715e">// The correctness of this depends on head being initialized
+</span><span style="color:#75715e"></span>    <span style="color:#75715e">// before tail and on head.next being accurate if the current
+</span><span style="color:#75715e"></span>    <span style="color:#75715e">// thread is first in queue.
+</span><span style="color:#75715e"></span>    Node t <span style="color:#f92672">=</span> tail<span style="color:#f92672">;</span> <span style="color:#75715e">// Read fields in reverse initialization order
+</span><span style="color:#75715e"></span>    Node h <span style="color:#f92672">=</span> head<span style="color:#f92672">;</span>
+    Node s<span style="color:#f92672">;</span>
+    <span style="color:#66d9ef">return</span> h <span style="color:#f92672">!=</span> t <span style="color:#f92672">&amp;&amp;</span>
+        <span style="color:#f92672">((</span>s <span style="color:#f92672">=</span> h<span style="color:#f92672">.</span><span style="color:#a6e22e">next</span><span style="color:#f92672">)</span> <span style="color:#f92672">==</span> <span style="color:#66d9ef">null</span> <span style="color:#f92672">||</span> s<span style="color:#f92672">.</span><span style="color:#a6e22e">thread</span> <span style="color:#f92672">!=</span> Thread<span style="color:#f92672">.</span><span style="color:#a6e22e">currentThread</span><span style="color:#f92672">());</span>
+<span style="color:#f92672">}</span>
+</code></pre></div><p>通过方法名和实现可以看出来，这是判断thread等待队列是否有后继节点。这也与公平锁的定义一致。</p>
+<h3 id="可重入锁与不可重入锁">可重入锁与不可重入锁</h3>
+<p>之前有提到过可重入锁，但是没有说过它具体是什么含义。</p>
+<p>可重入锁指的是，锁以<strong>线程</strong>为单位，同一个线程内，多次访问同一个加锁块，是不会被阻塞的。而不可重入锁，是以<strong>调用</strong>为单位，无论是不是在同一个线程，只要有另一个调用在访问这个加锁的块，当前调用就需要阻塞。</p>
+<p>JDK中，只实现了可重入锁，没有实现不可重入锁，应该是因为不可重入锁适用范围窄，而且容易死锁，难以使用。</p>
+<p>但是netty中实现了不可重入锁，不可重入锁的实现更简单，只是简单的继承了AQS，然后做了一点工作。我们先来对比一下这两者的差异：
+<img src="https://raw.githubusercontent.com/hujianxin/pico/master/img/20200727151932.png" alt="20200727151932">
+通过上图可以看出来，两者的差距在与一个叫state的东西，在可重入锁中，state是一个计数器，当前同一个线程访问这个代码片段时，state+1。而在不可重入锁中，state只是一个标志位。</p>
+<h3 id="独占锁与共享锁">独占锁与共享锁</h3>
+<p>JDK中提供了ReentrantReadWriteLock，也叫读写锁。</p>
+<p>读写锁存在的意义是，如果一个系统，写请求少，读请求多，那么如果每次读都加锁的话，严重影响性能了。因为写请求少，本来只需要对写写、写读进行隔离就行，读读是不受影响的。所以出现了读写锁。</p>
+<p>ReentrantReadWriteLock的构造函数如下：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#66d9ef">public</span> <span style="color:#a6e22e">ReentrantReadWriteLock</span><span style="color:#f92672">(</span><span style="color:#66d9ef">boolean</span> fair<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+    sync <span style="color:#f92672">=</span> fair <span style="color:#f92672">?</span> <span style="color:#66d9ef">new</span> FairSync<span style="color:#f92672">()</span> <span style="color:#f92672">:</span> <span style="color:#66d9ef">new</span> NonfairSync<span style="color:#f92672">();</span>
+    readerLock <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> ReadLock<span style="color:#f92672">(</span><span style="color:#66d9ef">this</span><span style="color:#f92672">);</span>
+    writerLock <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> WriteLock<span style="color:#f92672">(</span><span style="color:#66d9ef">this</span><span style="color:#f92672">);</span>
+<span style="color:#f92672">}</span>
+</code></pre></div><p>可以看到，内部有两个锁，一个是读锁，一个是写锁。而这两个锁，共用了同一个sync，共用sync，是因为读和写是排斥的，需要了解对方的信息。</p>
+<p>那到底是如何使用同一个sync来实现读写分离的呢？关键还在与state这个字段，前面在将可重入、不可重入的时候已经说过了，在可重入锁中，state是一个计数器，不可重入锁中，state是一个标志位。在读写锁中，state的作用又变了，跟之前完全是两码事了！</p>
+<p>state是一个int类型，32位。在读写锁中，高16位表示读状态（计数器），低16位表示写状态。将到这里，有些读者应该有所感觉了。</p>
+<p>在ReentrantReadWriteLock中，实现了tryAcquire和tryAcquireShared两个方法，分别是用在写锁和读锁的获取上。</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#66d9ef">protected</span> <span style="color:#66d9ef">final</span> <span style="color:#66d9ef">int</span> <span style="color:#a6e22e">tryAcquireShared</span><span style="color:#f92672">(</span><span style="color:#66d9ef">int</span> unused<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+    Thread current <span style="color:#f92672">=</span> Thread<span style="color:#f92672">.</span><span style="color:#a6e22e">currentThread</span><span style="color:#f92672">();</span>
+    <span style="color:#66d9ef">int</span> c <span style="color:#f92672">=</span> getState<span style="color:#f92672">();</span>
+    <span style="color:#66d9ef">if</span> <span style="color:#f92672">(</span>exclusiveCount<span style="color:#f92672">(</span>c<span style="color:#f92672">)</span> <span style="color:#f92672">!=</span> 0 <span style="color:#f92672">&amp;&amp;</span> <span style="color:#75715e">// 获取独占锁的个数，如果独占锁的个数是0，或者是本线程（可重入）在操作，那就可以继续获取锁了。
+</span><span style="color:#75715e"></span>        getExclusiveOwnerThread<span style="color:#f92672">()</span> <span style="color:#f92672">!=</span> current<span style="color:#f92672">)</span>
+        <span style="color:#66d9ef">return</span> <span style="color:#f92672">-</span>1<span style="color:#f92672">;</span>
+    <span style="color:#66d9ef">int</span> r <span style="color:#f92672">=</span> sharedCount<span style="color:#f92672">(</span>c<span style="color:#f92672">);</span>
+    <span style="color:#66d9ef">if</span> <span style="color:#f92672">(!</span>readerShouldBlock<span style="color:#f92672">()</span> <span style="color:#f92672">&amp;&amp;</span>
+        r <span style="color:#f92672">&lt;</span> MAX_COUNT <span style="color:#f92672">&amp;&amp;</span>
+        compareAndSetState<span style="color:#f92672">(</span>c<span style="color:#f92672">,</span> c <span style="color:#f92672">+</span> SHARED_UNIT<span style="color:#f92672">))</span> <span style="color:#f92672">{</span>
+        <span style="color:#66d9ef">if</span> <span style="color:#f92672">(</span>r <span style="color:#f92672">==</span> 0<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+            firstReader <span style="color:#f92672">=</span> current<span style="color:#f92672">;</span>
+            firstReaderHoldCount <span style="color:#f92672">=</span> 1<span style="color:#f92672">;</span>
+        <span style="color:#f92672">}</span> <span style="color:#66d9ef">else</span> <span style="color:#66d9ef">if</span> <span style="color:#f92672">(</span>firstReader <span style="color:#f92672">==</span> current<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+            firstReaderHoldCount<span style="color:#f92672">++;</span>
+        <span style="color:#f92672">}</span> <span style="color:#66d9ef">else</span> <span style="color:#f92672">{</span>
+            HoldCounter rh <span style="color:#f92672">=</span> cachedHoldCounter<span style="color:#f92672">;</span>
+            <span style="color:#66d9ef">if</span> <span style="color:#f92672">(</span>rh <span style="color:#f92672">==</span> <span style="color:#66d9ef">null</span> <span style="color:#f92672">||</span> rh<span style="color:#f92672">.</span><span style="color:#a6e22e">tid</span> <span style="color:#f92672">!=</span> getThreadId<span style="color:#f92672">(</span>current<span style="color:#f92672">))</span>
+                cachedHoldCounter <span style="color:#f92672">=</span> rh <span style="color:#f92672">=</span> readHolds<span style="color:#f92672">.</span><span style="color:#a6e22e">get</span><span style="color:#f92672">();</span>
+            <span style="color:#66d9ef">else</span> <span style="color:#66d9ef">if</span> <span style="color:#f92672">(</span>rh<span style="color:#f92672">.</span><span style="color:#a6e22e">count</span> <span style="color:#f92672">==</span> 0<span style="color:#f92672">)</span>
+                readHolds<span style="color:#f92672">.</span><span style="color:#a6e22e">set</span><span style="color:#f92672">(</span>rh<span style="color:#f92672">);</span>
+            rh<span style="color:#f92672">.</span><span style="color:#a6e22e">count</span><span style="color:#f92672">++;</span>
+        <span style="color:#f92672">}</span>
+        <span style="color:#66d9ef">return</span> 1<span style="color:#f92672">;</span>
+    <span style="color:#f92672">}</span>
+    <span style="color:#66d9ef">return</span> fullTryAcquireShared<span style="color:#f92672">(</span>current<span style="color:#f92672">);</span>
+<span style="color:#f92672">}</span>
+<span style="color:#66d9ef">protected</span> <span style="color:#66d9ef">final</span> <span style="color:#66d9ef">boolean</span> <span style="color:#a6e22e">tryAcquire</span><span style="color:#f92672">(</span><span style="color:#66d9ef">int</span> acquires<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+    Thread current <span style="color:#f92672">=</span> Thread<span style="color:#f92672">.</span><span style="color:#a6e22e">currentThread</span><span style="color:#f92672">();</span>
+    <span style="color:#66d9ef">int</span> c <span style="color:#f92672">=</span> getState<span style="color:#f92672">();</span>
+    <span style="color:#66d9ef">int</span> w <span style="color:#f92672">=</span> exclusiveCount<span style="color:#f92672">(</span>c<span style="color:#f92672">);</span>
+    <span style="color:#66d9ef">if</span> <span style="color:#f92672">(</span>c <span style="color:#f92672">!=</span> 0<span style="color:#f92672">)</span> <span style="color:#f92672">{</span> <span style="color:#75715e">// 如果没有其他读写，则继续获取锁
+</span><span style="color:#75715e"></span>        <span style="color:#75715e">// (Note: if c != 0 and w == 0 then shared count != 0)
+</span><span style="color:#75715e"></span>        <span style="color:#66d9ef">if</span> <span style="color:#f92672">(</span>w <span style="color:#f92672">==</span> 0 <span style="color:#f92672">||</span> current <span style="color:#f92672">!=</span> getExclusiveOwnerThread<span style="color:#f92672">())</span><span style="color:#75715e">// 如果有其他读操作或者有其他线程在操作，则无法获取锁。
+</span><span style="color:#75715e"></span>            <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">false</span><span style="color:#f92672">;</span>
+        <span style="color:#66d9ef">if</span> <span style="color:#f92672">(</span>w <span style="color:#f92672">+</span> exclusiveCount<span style="color:#f92672">(</span>acquires<span style="color:#f92672">)</span> <span style="color:#f92672">&gt;</span> MAX_COUNT<span style="color:#f92672">)</span>
+            <span style="color:#66d9ef">throw</span> <span style="color:#66d9ef">new</span> Error<span style="color:#f92672">(</span><span style="color:#e6db74">&#34;Maximum lock count exceeded&#34;</span><span style="color:#f92672">);</span>
+        <span style="color:#75715e">// Reentrant acquire
+</span><span style="color:#75715e"></span>        setState<span style="color:#f92672">(</span>c <span style="color:#f92672">+</span> acquires<span style="color:#f92672">);</span>
+        <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">true</span><span style="color:#f92672">;</span>
+    <span style="color:#f92672">}</span>
+    <span style="color:#66d9ef">if</span> <span style="color:#f92672">(</span>writerShouldBlock<span style="color:#f92672">()</span> <span style="color:#f92672">||</span>
+        <span style="color:#f92672">!</span>compareAndSetState<span style="color:#f92672">(</span>c<span style="color:#f92672">,</span> c <span style="color:#f92672">+</span> acquires<span style="color:#f92672">))</span>
+        <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">false</span><span style="color:#f92672">;</span>
+    setExclusiveOwnerThread<span style="color:#f92672">(</span>current<span style="color:#f92672">);</span>
+    <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">true</span><span style="color:#f92672">;</span>
+<span style="color:#f92672">}</span>
+</code></pre></div><h2 id="aqs">AQS</h2>
+<p>经过分析ReentrantLock等的实现，我们已经对AQS是什么有了一个隐约的轮廓：</p>
+<ol>
+<li>AQS里面有一个队列，用来存排队的线程，可以在这个队列中胜出的线程，就可以获取到锁。</li>
+<li>AQS里面有一个state字段，这个字段在可重入锁中充当的是计数器角色，表示当前线程重复获取了多少次锁。在不可重入锁中充当的是标志位，表示是否有其他操作获取过锁。在读写锁中，高16位是读计数器，低16位是写计数器。</li>
+<li>AQS里面有一个exclusiveOwnerThread字段，表示当前是哪个线程再获取独占锁。</li>
+</ol>
+<p>除此之外，这里还要总结一下：</p>
+<ol>
+<li>队列的入队和出队都用了CAS工具unsafe.compareAndSwapObject，也就是自选锁。</li>
+<li>state的设置也是使用CAS实现的。</li>
+<li>线程的阻塞和释放使用了LockSupport.park和LockSupport.unpark</li>
+</ol>
+<h2 id="condition">Condition</h2>
+<p>除了有一个同步队列之外，AQS里面还有一个ConditionObject类，这个是配合Condition使用的。ConditionObject里面也有一个队列。Condition用来两个线程之间通讯用的工具，具体使用方式如下：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java">Lock lock <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> ReentrantLock<span style="color:#f92672">();</span>
+Condition condition <span style="color:#f92672">=</span> lock<span style="color:#f92672">.</span><span style="color:#a6e22e">newCondition</span><span style="color:#f92672">();</span>
+<span style="color:#f92672">...</span>
+lock<span style="color:#f92672">.</span><span style="color:#a6e22e">lock</span><span style="color:#f92672">();</span>
+<span style="color:#66d9ef">try</span> <span style="color:#f92672">{</span>
+  <span style="color:#66d9ef">while</span> <span style="color:#f92672">(</span> 某条件A <span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+    condition<span style="color:#f92672">.</span><span style="color:#a6e22e">await</span><span style="color:#f92672">();</span>
+  <span style="color:#f92672">}</span>
+  <span style="color:#75715e">// 条件A满足时应执行的代码
+</span><span style="color:#75715e"></span><span style="color:#f92672">}</span> <span style="color:#66d9ef">finally</span> <span style="color:#f92672">{</span>
+   lock<span style="color:#f92672">.</span><span style="color:#a6e22e">unlock</span><span style="color:#f92672">();</span>
+<span style="color:#f92672">}</span>
+</code></pre></div><p>ConditionObject实现了java.util.concurrent.locks.Condition接口，表示自己是一个条件队列。作为内部类，它没有被static关键字修饰，表示它不能脱离外部的AQS类独立存在，必须与外部类AQS实例建立关联。这与我们实际使用可重入锁也是一致的。Condition属于某个锁。</p>
+<p>Condition有两个核心方法:await(), signal()，这里提一嘴在Java原生体系中ReentrantLock对应的是synchronized，而Condition的await、signal对应的是Object的wait、notify。</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">final</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">await</span><span style="color:#f92672">()</span> <span style="color:#66d9ef">throws</span> InterruptedException <span style="color:#f92672">{</span>
+    <span style="color:#66d9ef">if</span> <span style="color:#f92672">(</span>Thread<span style="color:#f92672">.</span><span style="color:#a6e22e">interrupted</span><span style="color:#f92672">())</span>
+        <span style="color:#66d9ef">throw</span> <span style="color:#66d9ef">new</span> InterruptedException<span style="color:#f92672">();</span>
+    Node node <span style="color:#f92672">=</span> addConditionWaiter<span style="color:#f92672">();</span>
+    <span style="color:#66d9ef">int</span> savedState <span style="color:#f92672">=</span> fullyRelease<span style="color:#f92672">(</span>node<span style="color:#f92672">);</span>
+    <span style="color:#66d9ef">int</span> interruptMode <span style="color:#f92672">=</span> 0<span style="color:#f92672">;</span>
+    <span style="color:#66d9ef">while</span> <span style="color:#f92672">(!</span>isOnSyncQueue<span style="color:#f92672">(</span>node<span style="color:#f92672">))</span> <span style="color:#f92672">{</span>
+        LockSupport<span style="color:#f92672">.</span><span style="color:#a6e22e">park</span><span style="color:#f92672">(</span><span style="color:#66d9ef">this</span><span style="color:#f92672">);</span>
+        <span style="color:#66d9ef">if</span> <span style="color:#f92672">((</span>interruptMode <span style="color:#f92672">=</span> checkInterruptWhileWaiting<span style="color:#f92672">(</span>node<span style="color:#f92672">))</span> <span style="color:#f92672">!=</span> 0<span style="color:#f92672">)</span>
+            <span style="color:#66d9ef">break</span><span style="color:#f92672">;</span>
+    <span style="color:#f92672">}</span>
+    <span style="color:#66d9ef">if</span> <span style="color:#f92672">(</span>acquireQueued<span style="color:#f92672">(</span>node<span style="color:#f92672">,</span> savedState<span style="color:#f92672">)</span> <span style="color:#f92672">&amp;&amp;</span> interruptMode <span style="color:#f92672">!=</span> THROW_IE<span style="color:#f92672">)</span>
+        interruptMode <span style="color:#f92672">=</span> REINTERRUPT<span style="color:#f92672">;</span>
+    <span style="color:#66d9ef">if</span> <span style="color:#f92672">(</span>node<span style="color:#f92672">.</span><span style="color:#a6e22e">nextWaiter</span> <span style="color:#f92672">!=</span> <span style="color:#66d9ef">null</span><span style="color:#f92672">)</span> <span style="color:#75715e">// clean up if cancelled
+</span><span style="color:#75715e"></span>        unlinkCancelledWaiters<span style="color:#f92672">();</span>
+    <span style="color:#66d9ef">if</span> <span style="color:#f92672">(</span>interruptMode <span style="color:#f92672">!=</span> 0<span style="color:#f92672">)</span>
+        reportInterruptAfterWait<span style="color:#f92672">(</span>interruptMode<span style="color:#f92672">);</span>
+<span style="color:#f92672">}</span>
+</code></pre></div><p>这里分析一下await步骤：</p>
+<ol>
+<li>相应中断</li>
+<li>将当前线程放入条件队列（ConditionObject维持的一个队列，与AQS中的同步队列不是一个）</li>
+<li>释放当前线程</li>
+<li>然后睡觉-被唤醒-睡觉-被唤醒-睡觉-被唤醒如此循环，直到发现当前线程已经处于同步队列了，说明自己已经获取到锁了。</li>
+<li>后面就是清理所状态</li>
+</ol>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">final</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">signal</span><span style="color:#f92672">()</span> <span style="color:#f92672">{</span>
+    <span style="color:#66d9ef">if</span> <span style="color:#f92672">(!</span>isHeldExclusively<span style="color:#f92672">())</span>
+        <span style="color:#66d9ef">throw</span> <span style="color:#66d9ef">new</span> IllegalMonitorStateException<span style="color:#f92672">();</span>
+    Node first <span style="color:#f92672">=</span> firstWaiter<span style="color:#f92672">;</span>
+    <span style="color:#66d9ef">if</span> <span style="color:#f92672">(</span>first <span style="color:#f92672">!=</span> <span style="color:#66d9ef">null</span><span style="color:#f92672">)</span>
+        doSignal<span style="color:#f92672">(</span>first<span style="color:#f92672">);</span>
+<span style="color:#f92672">}</span>
+<span style="color:#66d9ef">private</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">doSignal</span><span style="color:#f92672">(</span>Node first<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+    <span style="color:#66d9ef">do</span> <span style="color:#f92672">{</span>
+        <span style="color:#66d9ef">if</span> <span style="color:#f92672">(</span> <span style="color:#f92672">(</span>firstWaiter <span style="color:#f92672">=</span> first<span style="color:#f92672">.</span><span style="color:#a6e22e">nextWaiter</span><span style="color:#f92672">)</span> <span style="color:#f92672">==</span> <span style="color:#66d9ef">null</span><span style="color:#f92672">)</span>
+            lastWaiter <span style="color:#f92672">=</span> <span style="color:#66d9ef">null</span><span style="color:#f92672">;</span>
+        first<span style="color:#f92672">.</span><span style="color:#a6e22e">nextWaiter</span> <span style="color:#f92672">=</span> <span style="color:#66d9ef">null</span><span style="color:#f92672">;</span>
+    <span style="color:#f92672">}</span> <span style="color:#66d9ef">while</span> <span style="color:#f92672">(!</span>transferForSignal<span style="color:#f92672">(</span>first<span style="color:#f92672">)</span> <span style="color:#f92672">&amp;&amp;</span>
+              <span style="color:#f92672">(</span>first <span style="color:#f92672">=</span> firstWaiter<span style="color:#f92672">)</span> <span style="color:#f92672">!=</span> <span style="color:#66d9ef">null</span><span style="color:#f92672">);</span>
+<span style="color:#f92672">}</span>
+</code></pre></div><p>下面分析signal步骤：</p>
+<ol>
+<li>从条件队列头部开始，找到第一个未取消等待的线程，并把线程由条件等待状态改为就绪状态</li>
+<li>条件队列取下来放入锁队列</li>
+<li>把这个线程用CAS操作设为等待锁状态</li>
+</ol>
+<h2 id="countdownlatch">CountDownLatch</h2>
+<p>CountDownLatch的代码比较简单，与其他动辄三四千行的大类来说，300多行代码可谓是小巧玲珑了，所以在大体了解了AQS的原理之后，了解CountDownLatch的原理也比较简单。</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#66d9ef">private</span> <span style="color:#66d9ef">static</span> <span style="color:#66d9ef">final</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">Sync</span> <span style="color:#66d9ef">extends</span> AbstractQueuedSynchronizer <span style="color:#f92672">{</span>
+    <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">static</span> <span style="color:#66d9ef">final</span> <span style="color:#66d9ef">long</span> serialVersionUID <span style="color:#f92672">=</span> 4982264981922014374L<span style="color:#f92672">;</span>
+
+    Sync<span style="color:#f92672">(</span><span style="color:#66d9ef">int</span> count<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+        setState<span style="color:#f92672">(</span>count<span style="color:#f92672">);</span>
+    <span style="color:#f92672">}</span>
+
+    <span style="color:#66d9ef">int</span> <span style="color:#a6e22e">getCount</span><span style="color:#f92672">()</span> <span style="color:#f92672">{</span>
+        <span style="color:#66d9ef">return</span> getState<span style="color:#f92672">();</span>
+    <span style="color:#f92672">}</span>
+
+    <span style="color:#66d9ef">protected</span> <span style="color:#66d9ef">int</span> <span style="color:#a6e22e">tryAcquireShared</span><span style="color:#f92672">(</span><span style="color:#66d9ef">int</span> acquires<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+        <span style="color:#66d9ef">return</span> <span style="color:#f92672">(</span>getState<span style="color:#f92672">()</span> <span style="color:#f92672">==</span> 0<span style="color:#f92672">)</span> <span style="color:#f92672">?</span> 1 <span style="color:#f92672">:</span> <span style="color:#f92672">-</span>1<span style="color:#f92672">;</span>
+    <span style="color:#f92672">}</span>
+
+    <span style="color:#66d9ef">protected</span> <span style="color:#66d9ef">boolean</span> <span style="color:#a6e22e">tryReleaseShared</span><span style="color:#f92672">(</span><span style="color:#66d9ef">int</span> releases<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+        <span style="color:#75715e">// Decrement count; signal when transition to zero
+</span><span style="color:#75715e"></span>        <span style="color:#66d9ef">for</span> <span style="color:#f92672">(;;)</span> <span style="color:#f92672">{</span>
+            <span style="color:#66d9ef">int</span> c <span style="color:#f92672">=</span> getState<span style="color:#f92672">();</span>
+            <span style="color:#66d9ef">if</span> <span style="color:#f92672">(</span>c <span style="color:#f92672">==</span> 0<span style="color:#f92672">)</span>
+                <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">false</span><span style="color:#f92672">;</span>
+            <span style="color:#66d9ef">int</span> nextc <span style="color:#f92672">=</span> c<span style="color:#f92672">-</span>1<span style="color:#f92672">;</span>
+            <span style="color:#66d9ef">if</span> <span style="color:#f92672">(</span>compareAndSetState<span style="color:#f92672">(</span>c<span style="color:#f92672">,</span> nextc<span style="color:#f92672">))</span>
+                <span style="color:#66d9ef">return</span> nextc <span style="color:#f92672">==</span> 0<span style="color:#f92672">;</span>
+        <span style="color:#f92672">}</span>
+    <span style="color:#f92672">}</span>
+<span style="color:#f92672">}</span>
+</code></pre></div><p>通过上面的代码可知CountDownLatch中，state也是一个倒计数的工具。</p>
+<p>CountDownLatch有两个核心方法：await、countDown</p>
+<p>在调用await之后：</p>
+<ol>
+<li>sync的acquireSharedInterruptibly会被调用</li>
+<li>在acquireSharedInterruptibly中，把当前线程加入同步队列。</li>
+<li>进入循环：判断是否state已经被减到0,如果被减到0，则返回，否则睡觉</li>
+<li>这里是被谁唤醒的呢？</li>
+</ol>
+<p>是被countdown唤醒的。具体不再分析了，可以参考后面的参考文章。</p>
+<h2 id="其他">其他</h2>
+<p>至此，我们学习了Java中，如何使用AQS实现可重入锁、不可重入锁、公平锁、非公平锁、读写锁、CountDownLatch。</p>
+<p>除此之外，AQS还是实现线程池Worker、Semaphore等的核心工具。关于线程池，后面会单独写一篇文章。</p>
+<h2 id="参考">参考</h2>
+<ol>
+<li><a href="https://tech.meituan.com/2018/11/15/java-lock.html">不可不说的Java“锁”事</a></li>
+<li><a href="http://byteliu.com/2018/09/01/AQS%E6%9D%A1%E4%BB%B6%E9%98%9F%E5%88%97Condition%E5%AE%9E%E7%8E%B0%E8%AF%A6%E8%A7%A3/">AQS条件队列Condition实现详解</a></li>
+<li><a href="https://www.cnblogs.com/leesf456/p/5406191.html">【JUC】JDK1.8源码分析之CountDownLatch（五）</a></li>
+</ol>
+		</div>
+		<footer class="post__footer">
+			
+<div class="post__tags tags clearfix">
+	<svg class="tags__badge icon icon-tag" width="16" height="16" viewBox="0 0 32 32"><path d="M32 19c0 1-1 2-1 2L21 31s-1 1-2 1-2-1-2-1L2 16c-1-1-1.4-2-1.4-2S0 12.5 0 11V3C0 1.5.8.8.8.8S1.5 0 3 0h8c1.5 0 3 .6 3 .6S15 1 16 2l15 15s1 1 1 2zM7 10a3 3 0 1 0 0-6 3 3 0 0 0 0 6z"/></svg>
+	<ul class="tags__list">
+		<li class="tags__item"><a class="tags__link btn" href="/blog/tags/java/" rel="tag">Java</a></li>
+		<li class="tags__item"><a class="tags__link btn" href="/blog/tags/concurrency/" rel="tag">Concurrency</a></li>
+		<li class="tags__item"><a class="tags__link btn" href="/blog/tags/aqs/" rel="tag">AQS</a></li>
+	</ul>
+</div>
+		</footer>
+	</article>
+</main>
+
+<div class="authorbox clearfix">
+	<figure class="authorbox__avatar">
+		<img alt="土豆 avatar" src="/blog/img/avatar.png" class="avatar" height="90" width="90">
+	</figure>
+	<div class="authorbox__header">
+		<span class="authorbox__name">About 土豆</span>
+	</div>
+	<div class="authorbox__description">
+		扑克拯救不了中国人，社畜能救的最多是自己.
+	</div>
+</div>
+
+<nav class="post-nav flex">
+	<div class="post-nav__item post-nav__item--prev">
+		<a class="post-nav__link" href="/blog/posts/concurrency1/" rel="prev"><span class="post-nav__caption">«&thinsp;Previous</span><p class="post-nav__post-title">Java并发编程问题汇总一：Java内存模型（JMM）</p></a>
+	</div>
+	<div class="post-nav__item post-nav__item--next">
+		<a class="post-nav__link" href="/blog/posts/zk/" rel="next"><span class="post-nav__caption">Next&thinsp;»</span><p class="post-nav__post-title">ZooKeeper选举</p></a>
+	</div>
+</nav>
+
+<section class="comments">
+	<div id="disqus_thread"></div>
+<script type="application/javascript">
+    var disqus_config = function () {
+    
+    
+    
+    };
+    (function() {
+        if (["localhost", "127.0.0.1"].indexOf(window.location.hostname) != -1) {
+            document.getElementById('disqus_thread').innerHTML = 'Disqus comments not available by default when the website is previewed locally.';
+            return;
+        }
+        var d = document, s = d.createElement('script'); s.async = true;
+        s.src = '//' + "jianxinhu" + '.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+</section>
+
+
+			</div>
+			<aside class="sidebar"><div class="widget-search widget">
+	<form class="widget-search__form" role="search" method="get" action="https://google.com/search">
+		<label>
+			<input class="widget-search__field" type="search" placeholder="SEARCH..." value="" name="q" aria-label="SEARCH...">
+		</label>
+		<input class="widget-search__submit" type="submit" value="Search">
+		<input type="hidden" name="sitesearch" value="https://hujianxin.github.io/blog/" />
+	</form>
+</div>
+<div class="widget-recent widget">
+	<h4 class="widget__title">Recent Posts</h4>
+	<div class="widget__content">
+		<ul class="widget__list">
+			<li class="widget__item"><a class="widget__link" href="/blog/posts/fencing/">Fencing与脑裂</a></li>
+			<li class="widget__item"><a class="widget__link" href="/blog/posts/lsm/">LSM Tree</a></li>
+			<li class="widget__item"><a class="widget__link" href="/blog/posts/buildload/">HBase BulkLoad</a></li>
+			<li class="widget__item"><a class="widget__link" href="/blog/posts/snapshot/">HBase Snapshot</a></li>
+			<li class="widget__item"><a class="widget__link" href="/blog/posts/hbase_replication/">HBase 集群复制</a></li>
+		</ul>
+	</div>
+</div>
+<div class="widget-categories widget">
+	<h4 class="widget__title">Categories</h4>
+	<div class="widget__content">
+		<ul class="widget__list">
+			<li class="widget__item">
+				<a class="widget__link" href="/blog/categories/%E5%BC%80%E5%8F%91%E8%AE%BE%E8%AE%A1/">开发设计</a>
+			</li>
+		</ul>
+	</div>
+</div>
+<div class="widget-taglist widget">
+	<h4 class="widget__title">Tags</h4>
+	<div class="widget__content">
+		<a class="widget-taglist__link widget__link btn" href="/blog/tags/aqs/" title="AQS">AQS</a>
+		<a class="widget-taglist__link widget__link btn" href="/blog/tags/bulkload/" title="BulkLoad">BulkLoad</a>
+		<a class="widget-taglist__link widget__link btn" href="/blog/tags/concurrency/" title="Concurrency">Concurrency</a>
+		<a class="widget-taglist__link widget__link btn" href="/blog/tags/fencing/" title="Fencing">Fencing</a>
+		<a class="widget-taglist__link widget__link btn" href="/blog/tags/hbase/" title="HBase">HBase</a>
+		<a class="widget-taglist__link widget__link btn" href="/blog/tags/hdfs/" title="HDFS">HDFS</a>
+		<a class="widget-taglist__link widget__link btn" href="/blog/tags/java/" title="Java">Java</a>
+		<a class="widget-taglist__link widget__link btn" href="/blog/tags/lsm/" title="LSM">LSM</a>
+		<a class="widget-taglist__link widget__link btn" href="/blog/tags/mapreduce/" title="MapReduce">MapReduce</a>
+		<a class="widget-taglist__link widget__link btn" href="/blog/tags/snapshot/" title="Snapshot">Snapshot</a>
+		<a class="widget-taglist__link widget__link btn" href="/blog/tags/spring/" title="Spring">Spring</a>
+		<a class="widget-taglist__link widget__link btn" href="/blog/tags/zab/" title="ZAB">ZAB</a>
+		<a class="widget-taglist__link widget__link btn" href="/blog/tags/zookeeper/" title="Zookeeper">Zookeeper</a>
+	</div>
+</div>
+<div class="widget-social widget">
+	<h4 class="widget-social__title widget__title">Social</h4>
+	<div class="widget-social__content widget__content">
+		<div class="widget-social__item widget__item">
+			<a class="widget-social__link widget__link btn" title="Twitter" rel="noopener noreferrer" href="https://twitter.com/hujianxincn" target="_blank">
+				<svg class="widget-social__link-icon icon icon-twitter" width="24" height="24" viewBox="0 0 384 312"><path d="m384 36.9c-14.1 6.3-29.3 10.5-45.2 12.4 16.3-9.7 28.8-25.2 34.6-43.6-15.2 9-32.1 15.6-50 19.1-14.4-15.2-34.9-24.8-57.5-24.8-43.5 0-78.8 35.3-78.8 78.8 0 6.2.7 12.2 2 17.9-65.5-3.3-123.5-34.6-162.4-82.3-6.7 11.6-10.6 25.2-10.6 39.6 0 27.3 13.9 51.4 35 65.6-12.9-.4-25.1-4-35.7-9.9v1c0 38.2 27.2 70 63.2 77.2-6.6 1.8-13.6 2.8-20.8 2.8-5.1 0-10-.5-14.8-1.4 10 31.3 39.1 54.1 73.6 54.7-27 21.1-60.9 33.7-97.8 33.7-6.4 0-12.6-.4-18.8-1.1 34.9 22.4 76.3 35.4 120.8 35.4 144.9 0 224.1-120 224.1-224.1 0-3.4-.1-6.8-.2-10.2 15.4-11.1 28.7-25 39.3-40.8z"/></svg>
+				<span>Twitter</span>
+			</a>
+		</div>
+		<div class="widget-social__item widget__item">
+			<a class="widget-social__link widget__link btn" title="LinkedIn" rel="noopener noreferrer" href="https://linkedin.com/in/hujianxin" target="_blank">
+				<svg class="widget-social__link-icon icon icon-linkedin" width="24" height="24" viewBox="0 0 352 352"><path d="M0,40v272c0,21.9,18.1,40,40,40h272c21.9,0,40-18.1,40-40V40c0-21.9-18.1-40-40-40H40C18.1,0,0,18.1,0,40z M312,32 c4.6,0,8,3.4,8,8v272c0,4.6-3.4,8-8,8H40c-4.6,0-8-3.4-8-8V40c0-4.6,3.4-8,8-8H312z M59.5,87c0,15.2,12.3,27.5,27.5,27.5 c15.2,0,27.5-12.3,27.5-27.5c0-15.2-12.3-27.5-27.5-27.5C71.8,59.5,59.5,71.8,59.5,87z M187,157h-1v-21h-45v152h47v-75 c0-19.8,3.9-39,28.5-39c24.2,0,24.5,22.4,24.5,40v74h47v-83.5c0-40.9-8.7-72-56.5-72C208.5,132.5,193.3,145.1,187,157z M64,288h47.5 V136H64V288z"/></svg>
+				<span>LinkedIn</span>
+			</a>
+		</div>
+		<div class="widget-social__item widget__item">
+			<a class="widget-social__link widget__link btn" title="GitHub" rel="noopener noreferrer" href="https://github.com/hujianxin" target="_blank">
+				<svg class="widget-social__link-icon icon icon-github" width="24" height="24" viewBox="0 0 384 374"><path d="m192 0c-106.1 0-192 85.8-192 191.7 0 84.7 55 156.6 131.3 181.9 9.6 1.8 13.1-4.2 13.1-9.2 0-4.6-.2-16.6-.3-32.6-53.4 11.6-64.7-25.7-64.7-25.7-8.7-22.1-21.3-28-21.3-28-17.4-11.9 1.3-11.6 1.3-11.6 19.3 1.4 29.4 19.8 29.4 19.8 17.1 29.3 44.9 20.8 55.9 15.9 1.7-12.4 6.7-20.8 12.2-25.6-42.6-4.8-87.5-21.3-87.5-94.8 0-20.9 7.5-38 19.8-51.4-2-4.9-8.6-24.3 1.9-50.7 0 0 16.1-5.2 52.8 19.7 15.3-4.2 31.7-6.4 48.1-6.5 16.3.1 32.7 2.2 48.1 6.5 36.7-24.8 52.8-19.7 52.8-19.7 10.5 26.4 3.9 45.9 1.9 50.7 12.3 13.4 19.7 30.5 19.7 51.4 0 73.7-44.9 89.9-87.7 94.6 6.9 5.9 13 17.6 13 35.5 0 25.6-.2 46.3-.2 52.6 0 5.1 3.5 11.1 13.2 9.2 76.2-25.5 131.2-97.3 131.2-182 0-105.9-86-191.7-192-191.7z"/></svg>
+				<span>GitHub</span>
+			</a>
+		</div>
+		<div class="widget-social__item widget__item">
+			<a class="widget-social__link widget__link btn" title="Bitbucket" rel="noopener noreferrer" href="https://bitbucket.org/hujianxin" target="_blank">
+				<svg class="widget-social__link-icon icon icon-bitbucket" width="24" height="24" viewBox="0 0 256 231"><path d="M8.308 0A8.202 8.202 0 0 0 .106 9.516l34.819 211.373a11.155 11.155 0 0 0 10.909 9.31h167.04a8.202 8.202 0 0 0 8.201-6.89l34.82-213.752a8.202 8.202 0 0 0-8.203-9.514L8.308 0zm146.616 152.768h-53.315l-14.436-75.42h80.67l-12.919 75.42z"/></svg>
+				<span>Bitbucket</span>
+			</a>
+		</div>
+		<div class="widget-social__item widget__item">
+			<a class="widget-social__link widget__link btn" title="Email" href="mailto:hujianxincn@foxmail.com">
+				<svg class="widget-social__link-icon icon icon-mail" width="24" height="24" viewBox="0 0 416 288"><path d="m0 16v256 16h16 384 16v-16-256-16h-16-384-16zm347 16-139 92.5-139-92.5zm-148 125.5 9 5.5 9-5.5 167-111.5v210h-352v-210z"/></svg>
+				<span>hujianxincn@foxmail.com</span>
+			</a>
+		</div>
+
+		
+	</div>
+</div>
+</aside>
+		</div>
+		<footer class="footer">
+	<div class="container footer__container flex">
+		
+		<div class="footer__copyright">
+			&copy; 2020 hujianxin.
+			<span class="footer__copyright-credits">Generated with <a href="https://gohugo.io/" rel="nofollow noopener" target="_blank">Hugo</a> and <a href="https://github.com/Vimux/Mainroad/" rel="nofollow noopener" target="_blank">Mainroad</a> theme.</span>
+		</div>
+	</div>
+</footer>
+	</div>
+<script async defer src="/blog/js/menu.js"></script>
+<script src="/blog/js/custom.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.6/MathJax.js?config=TeX-AMS-MML_HTMLorMML" async></script>
+</body>
+</html>

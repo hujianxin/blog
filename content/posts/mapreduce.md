@@ -10,6 +10,7 @@ draft: false
 ---
 
 MapReduce是三篇经典分布式论文中与关于批量计算的一篇，相比之下，MapReduce较为容易理解。对于MapReduce，我了解不够深入，仅限于阅读过论文，写过简单的HadoopMapReduce程序，完成了6.824的模拟例题。下面，我将会简单整理一下我对MapReduce的理解。
+<!--more-->
 
 ## MapReduce编程模型
 MapReduce分为两个阶段：Map阶段、Reduce阶段。

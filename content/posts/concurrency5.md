@@ -1,15 +1,15 @@
 ---
-title: ThreadLocal
-description: 分布式内存网格Hazelcast
-date: 2020-05-18
+title: Java并发编程问题汇总一：ThreadLocal
+description: ThreadLocal
+date: 2019-06-08
 categories:
   - "开发设计"
 tags:
-  - "Hazelcast"
-  - "Cache"
+  - "Java"
+  - "Concurrency"
+  - "ThreadLocal"
 draft: true
 ---
-
 ThreadLocal是比较常用的多线程工具，有效理解ThreadLocal的内部原理，对自信地使用它具有益处。
 
 许多网友认为它是多线程环境下多线程数据共享的手段，其实这种想法是对ThreadLocal最大的误解。内存数据共享是并发编程中需要处理的一大难点，但是ThreadLocal却不是为了解决数据共享问题而生的。顾名思义，ThreadLocal为每个线程提供一个本地（本线程）副本，而这些副本之间，从出生到结束，都是没有丝毫联系的，它们仿佛是生活在平行宇宙中的同名个体，之间没有交际，互补影响，更何谈数据共享。

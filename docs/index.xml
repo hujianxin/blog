@@ -78,16 +78,39 @@ This is my person blog, I&amp;rsquo;ll post some technology-oriented articles re
     </item>
     
     <item>
+      <title>Java并发编程问题汇总一：AQS</title>
+      <link>https://hujianxin.github.io/blog/posts/concurrency3/</link>
+      <pubDate>Sat, 08 Jun 2019 00:00:00 +0000</pubDate>
+      
+      <guid>https://hujianxin.github.io/blog/posts/concurrency3/</guid>
+      <description>&lt;p&gt;上一篇，我们了解了Java自带synchronized锁的一些相关知识，本篇文章将会聚焦在concurrent中，所有锁类型都会用到的工具类：AQS（AbstractQueuedSynchronizer），看看concurrent包中的ReentrantLock、CountDownLatch等工具都是如何实现的。&lt;/p&gt;</description>
+    </item>
+    
+    <item>
+      <title>Java并发编程问题汇总一：Java内存模型（JMM）</title>
+      <link>https://hujianxin.github.io/blog/posts/concurrency1/</link>
+      <pubDate>Sat, 08 Jun 2019 00:00:00 +0000</pubDate>
+      
+      <guid>https://hujianxin.github.io/blog/posts/concurrency1/</guid>
+      <description>&lt;p&gt;Java多线程编程，是Java并发编程的主要手段，多线程编程中，变量的共享和同步问题，又是需要我们地一个迈过的门槛，所以了解Java内存模型，是了解Java并发编程的第一步。&lt;/p&gt;</description>
+    </item>
+    
+    <item>
+      <title>Java并发编程问题汇总一：对象布局</title>
+      <link>https://hujianxin.github.io/blog/posts/concurrency2/</link>
+      <pubDate>Sat, 08 Jun 2019 00:00:00 +0000</pubDate>
+      
+      <guid>https://hujianxin.github.io/blog/posts/concurrency2/</guid>
+      <description>&lt;p&gt;&lt;img src=&#34;https://raw.githubusercontent.com/hujianxin/pico/master/img/20200727135202.png&#34; alt=&#34;20200727135202&#34;&gt;&lt;/p&gt;</description>
+    </item>
+    
+    <item>
       <title>MapReduce</title>
       <link>https://hujianxin.github.io/blog/posts/mapreduce/</link>
       <pubDate>Sat, 08 Jun 2019 00:00:00 +0000</pubDate>
       
       <guid>https://hujianxin.github.io/blog/posts/mapreduce/</guid>
-      <description>MapReduce是三篇经典分布式论文中与关于批量计算的一篇，相比之下，MapReduce较为容易理解。对于MapReduce，我了解不够深入，仅限于阅读过论文，写过简单的HadoopMapReduce程序，完成了6.824的模拟例题。下面，我将会简单整理一下我对MapReduce的理解。
-MapReduce编程模型 MapReduce分为两个阶段：Map阶段、Reduce阶段。
-Map程序有成千上万个，一般情况运行在成千上万个机器上面。Map程序负责将用户数据读入，生成临时的key value pair。Reduce程序负责将生成的临时kv pair按照用户的意图聚合，最后写入指定地点。如下图所示：
-运行流程  用户将Job提交给Master Master负责分配任务给Map Map各自读取自己需要的数据，运行，将数据结果放到本地内存 Map程序中，如果数据足够多时，flush到本地文件。Map程序最终产生R个临时文件。 Map运行完成后，通知Master结果信息。 Master通知Reduce程序运行，以及临时文件的位置。 Reduce主动拉取文件。 Reduce将结果写入到本地临时目录。 Reduce运行完成后，将临时目录重命名为目标目录 Reduce将运行结果通知Master  容错 Worker  Master周期性ping每个worker，如果超时，则表示次work失效 失效的Map worker负责的所有mapreduce状态都将会被重置，并且重新调度，并通知相关的reduce worker 失效的Reduce worker，如果正在运行，则被重新调度，如果完成，则忽略。  Master 一般而言，都是直接失败。
-调度优化  尽量将输入与Map worker放到本地或者邻近的地方 理论上M和R越大越好，但是实际得看具体情况 使用combiner  </description>
+      <description>&lt;p&gt;MapReduce是三篇经典分布式论文中与关于批量计算的一篇，相比之下，MapReduce较为容易理解。对于MapReduce，我了解不够深入，仅限于阅读过论文，写过简单的HadoopMapReduce程序，完成了6.824的模拟例题。下面，我将会简单整理一下我对MapReduce的理解。&lt;/p&gt;</description>
     </item>
     
     <item>
