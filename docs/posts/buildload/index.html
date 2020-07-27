@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html class="no-js" lang="en-us">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<title>HBase BulkLoad - Just4Fun</title>
+	<script>(function(d,e){d[e]=d[e].replace("no-js","js");})(document.documentElement,"className");</script>
+	<meta name="description" content="BulkLoad">
+	<meta property="og:title" content="HBase BulkLoad" />
+<meta property="og:description" content="BulkLoad" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://hujianxin.github.io/blog/posts/buildload/" />
+<meta property="article:published_time" content="2020-05-18T00:00:00+00:00" />
+<meta property="article:modified_time" content="2020-05-18T00:00:00+00:00" />
+
+	<meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="HBase BulkLoad"/>
+<meta name="twitter:description" content="BulkLoad"/>
+
+	<link rel="dns-prefetch" href="//fonts.googleapis.com">
+	<link rel="dns-prefetch" href="//fonts.gstatic.com">
+	<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:400,400i,700">
+	<link rel="stylesheet" href="/blog/css/style.css">
+	<link rel="stylesheet" href="/blog/css/custom.css">
+	<link rel="shortcut icon" href="/blog/favicon.ico">
+		
+</head>
+<body class="body">
+	<div class="container container--outer">
+		<header class="header">
+	<div class="container">
+		<div class="logo">
+			<a class="logo__link" href="/blog/" title="Just4Fun" rel="home">
+				<div class="logo__title">Just4Fun</div>
+				<div class="logo__tagline">不甘于平庸，不苟求富贵</div>
+			</a>
+		</div>
+		
+<nav class="menu">
+	<button class="menu__btn" aria-haspopup="true" aria-expanded="false" tabindex="0">
+		<span class="menu__btn-title" tabindex="-1">Menu</span>
+	</button>
+	<ul class="menu__list">
+		<li class="menu__item">
+			<a class="menu__link" href="/blog/about/">
+				
+				<span class="menu__text">About</span>
+				
+			</a>
+		</li>
+	</ul>
+</nav>
+
+	</div>
+</header>
+		<div class="wrapper flex">
+			<div class="primary">
+			
+<main class="main" role="main">
+	<article class="post">
+		<header class="post__header">
+			<h1 class="post__title">HBase BulkLoad</h1>
+			<div class="post__meta meta">
+<div class="meta__item-datetime meta__item">
+	<svg class="meta__icon icon icon-time" width="16" height="14" viewBox="0 0 30 28"><path d="M15 0C7 0 1 6 1 14s6 14 14 14 14-6 14-14S23 0 15 0zm0 25C9 25 4 20 4 14S9 3 15 3s11 5 11 11-5 11-11 11zm1-18h-2v8.4l6.8 4.4L22 18l-6-3.8V7z"/></svg>
+	<time class="meta__text" datetime="2020-05-18T00:00:00">2020-05-18</time>
+</div>
+
+<div class="meta__item-categories meta__item">
+	<svg class="meta__icon icon icon-category" width="16" height="16" viewBox="0 0 16 16"><path d="m7 2l1 2h8v11h-16v-13z"/></svg>
+	<span class="meta__text"><a class="meta__link" href="/blog/categories/%E5%BC%80%E5%8F%91%E8%AE%BE%E8%AE%A1/" rel="category">开发设计</a>
+	</span>
+</div></div>
+		</header>
+<div class="post__toc toc">
+	<div class="toc__title">Page content</div>
+	<div class="toc__menu">
+		<nav id="TableOfContents">
+  <ul>
+    <li><a href="#bulkload核心流程">BulkLoad核心流程</a>
+      <ul>
+        <li><a href="#mapreduce生成hfile">MapReduce生成HFile</a></li>
+        <li><a href="#手工生成hfile">手工生成HFile</a></li>
+      </ul>
+    </li>
+  </ul>
+</nav>
+	</div>
+</div>
+<div class="content post__content clearfix">
+			<p><img src="https://raw.githubusercontent.com/hujianxin/pico/master/img/20200727110435.png" alt="20200727110435"></p>
+<p>在使用HBase的业务中，很多对HBase写数据的离线任务，因为数据量非常大，可能会造成下面的结果：</p>
+<ol>
+<li>RegionServer频繁flush，从而频繁compact、split，进而影响集群性能。</li>
+<li>RegionServer频繁gc。</li>
+<li>抢占大量Cpu、内存、IO、带宽资源。</li>
+<li>甚至会耗尽RegionServer的线程，导致集群阻塞。</li>
+</ol>
+<p>以上问题，会影响到离线任务之外的线上任务，很多情况下，这是不能容忍的。所以HBase提供了BulkLoad模式解决这个问题。</p>
+<p>BulkLoad方法是通过MapReduce来直接写HFile，跳过了HBase的处理流程。就像在读HBase时候使用Snapshot一样。</p>
+<h2 id="bulkload核心流程">BulkLoad核心流程</h2>
+<p>BulkLoad主要分为两大阶段：HFile生成阶段、HFile导入阶段。</p>
+<p>一般去网上搜或者书上介绍的关于BulkLoad相关的文章，在介绍File生成的时候，都会介绍一种非常简单通用的方式，也就是通过MapReduce的方式生成HFile，但是其实HBase核心的BulkLoad过程是不包括HFile生成的，而是HFile导入阶段。</p>
+<p>所以说，HFile的生成可以是任何形式的，并不一定是大家所使用的MapReduce形式。</p>
+<p>下上面我分别说一下两种不同的方式。</p>
+<h3 id="mapreduce生成hfile">MapReduce生成HFile</h3>
+<p>因为官方提供了HFileOutputFormat2.configureIncrementalLoad这个工具，所以使用MapReduce方式非常简单，核心代码如下：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">BulkLoadJob</span> <span style="color:#f92672">{</span>
+    <span style="color:#66d9ef">static</span> Logger logger <span style="color:#f92672">=</span> LoggerFactory<span style="color:#f92672">.</span><span style="color:#a6e22e">getLogger</span><span style="color:#f92672">(</span>BulkLoadJob<span style="color:#f92672">.</span><span style="color:#a6e22e">class</span><span style="color:#f92672">);</span>
+
+    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">static</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">BulkLoadMap</span>
+            <span style="color:#66d9ef">extends</span> Mapper<span style="color:#f92672">&lt;</span>LongWritable<span style="color:#f92672">,</span> Text<span style="color:#f92672">,</span> ImmutableBytesWritable<span style="color:#f92672">,</span> Put<span style="color:#f92672">&gt;</span> <span style="color:#f92672">{</span>
+
+        <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">map</span><span style="color:#f92672">(</span>LongWritable key<span style="color:#f92672">,</span> Text value<span style="color:#f92672">,</span> Context context<span style="color:#f92672">)</span>
+                <span style="color:#66d9ef">throws</span> IOException<span style="color:#f92672">,</span> InterruptedException <span style="color:#f92672">{</span>
+
+            String<span style="color:#f92672">[]</span> valueStrSplit <span style="color:#f92672">=</span> value<span style="color:#f92672">.</span><span style="color:#a6e22e">toString</span><span style="color:#f92672">().</span><span style="color:#a6e22e">split</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;,&#34;</span><span style="color:#f92672">);</span>
+            String hkey <span style="color:#f92672">=</span> valueStrSplit<span style="color:#f92672">[</span>0<span style="color:#f92672">];</span>
+            String family <span style="color:#f92672">=</span> valueStrSplit<span style="color:#f92672">[</span>1<span style="color:#f92672">].</span><span style="color:#a6e22e">split</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;:&#34;</span><span style="color:#f92672">)[</span>0<span style="color:#f92672">];</span>
+            String column <span style="color:#f92672">=</span> valueStrSplit<span style="color:#f92672">[</span>1<span style="color:#f92672">].</span><span style="color:#a6e22e">split</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;:&#34;</span><span style="color:#f92672">)[</span>1<span style="color:#f92672">];</span>
+            String hvalue <span style="color:#f92672">=</span> valueStrSplit<span style="color:#f92672">[</span>2<span style="color:#f92672">];</span>
+
+            <span style="color:#75715e">/**
+</span><span style="color:#75715e">             * 只支持单列族并发写入，如果是多个列族得多write一次
+</span><span style="color:#75715e">             */</span>
+            <span style="color:#66d9ef">final</span> <span style="color:#66d9ef">byte</span><span style="color:#f92672">[]</span> rowKey <span style="color:#f92672">=</span> Bytes<span style="color:#f92672">.</span><span style="color:#a6e22e">toBytes</span><span style="color:#f92672">(</span>hkey<span style="color:#f92672">);</span>
+            <span style="color:#66d9ef">final</span> ImmutableBytesWritable HKey <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> ImmutableBytesWritable<span style="color:#f92672">(</span>
+                    rowKey<span style="color:#f92672">);</span>
+            Put put <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> Put<span style="color:#f92672">(</span>rowKey<span style="color:#f92672">);</span>
+            <span style="color:#66d9ef">byte</span><span style="color:#f92672">[]</span> cell <span style="color:#f92672">=</span> Bytes<span style="color:#f92672">.</span><span style="color:#a6e22e">toBytes</span><span style="color:#f92672">(</span>hvalue<span style="color:#f92672">);</span>
+            put<span style="color:#f92672">.</span><span style="color:#a6e22e">add</span><span style="color:#f92672">(</span>Bytes<span style="color:#f92672">.</span><span style="color:#a6e22e">toBytes</span><span style="color:#f92672">(</span>family<span style="color:#f92672">),</span> Bytes<span style="color:#f92672">.</span><span style="color:#a6e22e">toBytes</span><span style="color:#f92672">(</span>column<span style="color:#f92672">),</span> cell<span style="color:#f92672">);</span>
+            context<span style="color:#f92672">.</span><span style="color:#a6e22e">write</span><span style="color:#f92672">(</span>HKey<span style="color:#f92672">,</span> put<span style="color:#f92672">);</span>
+
+        <span style="color:#f92672">}</span>
+    <span style="color:#f92672">}</span>
+
+    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">static</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">main</span><span style="color:#f92672">(</span>String<span style="color:#f92672">[]</span> args<span style="color:#f92672">)</span> <span style="color:#66d9ef">throws</span> Exception <span style="color:#f92672">{</span>
+
+        <span style="color:#75715e">/**
+</span><span style="color:#75715e">         * 此方法运行不宜小文件使用，每执行一次就会hfile就会增加，可以采用major_compact &#39;tablename&#39; 进行合并
+</span><span style="color:#75715e">         */</span>
+        Configuration conf <span style="color:#f92672">=</span> HBaseConfiguration<span style="color:#f92672">.</span><span style="color:#a6e22e">create</span><span style="color:#f92672">();</span>
+        String inputPath <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;/tmp/data.txt&#34;</span><span style="color:#f92672">;</span>
+        String outputPath <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;/tmp/hfiledemo&#34;</span><span style="color:#f92672">;</span>
+        String tableName <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;hfiletable&#34;</span><span style="color:#f92672">;</span>
+
+        <span style="color:#75715e">/**
+</span><span style="color:#75715e">         * 删除输出目录
+</span><span style="color:#75715e">         */</span>
+        FileSystem fileSystem <span style="color:#f92672">=</span> FileSystem<span style="color:#f92672">.</span><span style="color:#a6e22e">get</span><span style="color:#f92672">(</span>conf<span style="color:#f92672">);</span>
+        Path outPath <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> Path<span style="color:#f92672">(</span>outputPath<span style="color:#f92672">);</span>
+        <span style="color:#66d9ef">if</span> <span style="color:#f92672">(</span>fileSystem<span style="color:#f92672">.</span><span style="color:#a6e22e">exists</span><span style="color:#f92672">(</span>outPath<span style="color:#f92672">))</span> <span style="color:#f92672">{</span>
+            fileSystem<span style="color:#f92672">.</span><span style="color:#a6e22e">delete</span><span style="color:#f92672">(</span>outPath<span style="color:#f92672">,</span> <span style="color:#66d9ef">true</span><span style="color:#f92672">);</span>
+        <span style="color:#f92672">}</span>
+
+        Job job <span style="color:#f92672">=</span> Job<span style="color:#f92672">.</span><span style="color:#a6e22e">getInstance</span><span style="color:#f92672">(</span>conf<span style="color:#f92672">,</span> <span style="color:#e6db74">&#34;HFile bulk load&#34;</span><span style="color:#f92672">);</span>
+        job<span style="color:#f92672">.</span><span style="color:#a6e22e">setJarByClass</span><span style="color:#f92672">(</span>BulkLoadJob<span style="color:#f92672">.</span><span style="color:#a6e22e">class</span><span style="color:#f92672">);</span>
+        job<span style="color:#f92672">.</span><span style="color:#a6e22e">setMapperClass</span><span style="color:#f92672">(</span>BulkLoadJob<span style="color:#f92672">.</span><span style="color:#a6e22e">BulkLoadMap</span><span style="color:#f92672">.</span><span style="color:#a6e22e">class</span><span style="color:#f92672">);</span>
+        job<span style="color:#f92672">.</span><span style="color:#a6e22e">setMapOutputKeyClass</span><span style="color:#f92672">(</span>ImmutableBytesWritable<span style="color:#f92672">.</span><span style="color:#a6e22e">class</span><span style="color:#f92672">);</span>
+        job<span style="color:#f92672">.</span><span style="color:#a6e22e">setMapOutputValueClass</span><span style="color:#f92672">(</span>Put<span style="color:#f92672">.</span><span style="color:#a6e22e">class</span><span style="color:#f92672">);</span>
+        <span style="color:#75715e">// Disable speculative execution
+</span><span style="color:#75715e"></span>        job<span style="color:#f92672">.</span><span style="color:#a6e22e">setSpeculativeExecution</span><span style="color:#f92672">(</span><span style="color:#66d9ef">false</span><span style="color:#f92672">);</span>
+        job<span style="color:#f92672">.</span><span style="color:#a6e22e">setReduceSpeculativeExecution</span><span style="color:#f92672">(</span><span style="color:#66d9ef">false</span><span style="color:#f92672">);</span>
+
+        <span style="color:#75715e">// in/out format
+</span><span style="color:#75715e"></span>        job<span style="color:#f92672">.</span><span style="color:#a6e22e">setInputFormatClass</span><span style="color:#f92672">(</span>TextInputFormat<span style="color:#f92672">.</span><span style="color:#a6e22e">class</span><span style="color:#f92672">);</span>
+        job<span style="color:#f92672">.</span><span style="color:#a6e22e">setOutputFormatClass</span><span style="color:#f92672">(</span>HFileOutputFormat2<span style="color:#f92672">.</span><span style="color:#a6e22e">class</span><span style="color:#f92672">);</span>
+
+        FileInputFormat<span style="color:#f92672">.</span><span style="color:#a6e22e">setInputPaths</span><span style="color:#f92672">(</span>job<span style="color:#f92672">,</span> inputPath<span style="color:#f92672">);</span>
+        FileOutputFormat<span style="color:#f92672">.</span><span style="color:#a6e22e">setOutputPath</span><span style="color:#f92672">(</span>job<span style="color:#f92672">,</span> outPath<span style="color:#f92672">);</span>
+
+        HTable hTable <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> HTable<span style="color:#f92672">(</span>conf<span style="color:#f92672">,</span> tableName<span style="color:#f92672">);</span>
+        HFileOutputFormat2<span style="color:#f92672">.</span><span style="color:#a6e22e">configureIncrementalLoad</span><span style="color:#f92672">(</span>job<span style="color:#f92672">,</span> hTable<span style="color:#f92672">,</span> hTable<span style="color:#f92672">);</span>
+
+        <span style="color:#66d9ef">if</span> <span style="color:#f92672">(</span>job<span style="color:#f92672">.</span><span style="color:#a6e22e">waitForCompletion</span><span style="color:#f92672">(</span><span style="color:#66d9ef">true</span><span style="color:#f92672">))</span> <span style="color:#f92672">{</span>
+
+            <span style="color:#75715e">/**
+</span><span style="color:#75715e">             * 解决权限问题
+</span><span style="color:#75715e">             */</span>
+            FsShell shell <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> FsShell<span style="color:#f92672">(</span>conf<span style="color:#f92672">);</span>
+            <span style="color:#66d9ef">try</span> <span style="color:#f92672">{</span>
+                shell<span style="color:#f92672">.</span><span style="color:#a6e22e">run</span><span style="color:#f92672">(</span><span style="color:#66d9ef">new</span> String<span style="color:#f92672">[]</span> <span style="color:#f92672">{</span> <span style="color:#e6db74">&#34;-chmod&#34;</span><span style="color:#f92672">,</span> <span style="color:#e6db74">&#34;-R&#34;</span><span style="color:#f92672">,</span> <span style="color:#e6db74">&#34;777&#34;</span><span style="color:#f92672">,</span> outputPath <span style="color:#f92672">});</span>
+            <span style="color:#f92672">}</span> <span style="color:#66d9ef">catch</span> <span style="color:#f92672">(</span>Exception e<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+                logger<span style="color:#f92672">.</span><span style="color:#a6e22e">error</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;Couldnt change the file permissions &#34;</span><span style="color:#f92672">,</span> e<span style="color:#f92672">);</span>
+                <span style="color:#66d9ef">throw</span> <span style="color:#66d9ef">new</span> IOException<span style="color:#f92672">(</span>e<span style="color:#f92672">);</span>
+            <span style="color:#f92672">}</span>
+
+            <span style="color:#75715e">/**
+</span><span style="color:#75715e">             * 加载到hbase表
+</span><span style="color:#75715e">             */</span>
+            LoadIncrementalHFiles loader <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> LoadIncrementalHFiles<span style="color:#f92672">(</span>conf<span style="color:#f92672">);</span>
+            loader<span style="color:#f92672">.</span><span style="color:#a6e22e">doBulkLoad</span><span style="color:#f92672">(</span>outPath<span style="color:#f92672">,</span> hTable<span style="color:#f92672">);</span>
+        <span style="color:#f92672">}</span>
+    <span style="color:#f92672">}</span>
+<span style="color:#f92672">}</span>
+</code></pre></div><p>其主要步骤就是：</p>
+<ol>
+<li>配置输入的数据</li>
+<li>初始化Mapper的Job</li>
+<li>提交Job</li>
+<li>等待Job运行结束之后，通过<code>LoadIncrementalHFiles.doBulkLoad</code>进行加载。</li>
+</ol>
+<h3 id="手工生成hfile">手工生成HFile</h3>
+<p>上面MapReduce的过程非常简单。但是如果想同时生成多个表，貌似是做不到的。因为这个Reducer只能将数据写入到一个目录里面，而Load的时候，一个目录只能对应一个表。</p>
+<p>所以，这种情况，手工生成HFile更方便。可以参考博客：<a href="http://www.zhangrenhua.com/2016/01/28/hadoop-Hbase%E5%BF%AB%E9%80%9F%E5%86%99%E5%85%A5%E8%A7%A3%E6%83%91%E4%B9%8BHFile/">Hbase快速写入解惑之HFile</a></p>
+<p>在阅读HFileOutputFormat2这个工具类的代码之后，发现，其实可以只是用里面createRecordWriter这个方法，稍作修改就可以。</p>
+
+		</div>
+		<footer class="post__footer">
+			
+<div class="post__tags tags clearfix">
+	<svg class="tags__badge icon icon-tag" width="16" height="16" viewBox="0 0 32 32"><path d="M32 19c0 1-1 2-1 2L21 31s-1 1-2 1-2-1-2-1L2 16c-1-1-1.4-2-1.4-2S0 12.5 0 11V3C0 1.5.8.8.8.8S1.5 0 3 0h8c1.5 0 3 .6 3 .6S15 1 16 2l15 15s1 1 1 2zM7 10a3 3 0 1 0 0-6 3 3 0 0 0 0 6z"/></svg>
+	<ul class="tags__list">
+		<li class="tags__item"><a class="tags__link btn" href="/blog/tags/hbase/" rel="tag">HBase</a></li>
+		<li class="tags__item"><a class="tags__link btn" href="/blog/tags/bulkload/" rel="tag">BulkLoad</a></li>
+	</ul>
+</div>
+		</footer>
+	</article>
+</main>
+
+<div class="authorbox clearfix">
+	<figure class="authorbox__avatar">
+		<img alt="土豆 avatar" src="/blog/img/avatar.png" class="avatar" height="90" width="90">
+	</figure>
+	<div class="authorbox__header">
+		<span class="authorbox__name">About 土豆</span>
+	</div>
+	<div class="authorbox__description">
+		扑克拯救不了中国人，社畜能救的最多是自己.
+	</div>
+</div>
+
+<nav class="post-nav flex">
+	<div class="post-nav__item post-nav__item--prev">
+		<a class="post-nav__link" href="/blog/posts/snapshot/" rel="prev"><span class="post-nav__caption">«&thinsp;Previous</span><p class="post-nav__post-title">HBase Snapshot</p></a>
+	</div>
+	<div class="post-nav__item post-nav__item--next">
+		<a class="post-nav__link" href="/blog/posts/lsm/" rel="next"><span class="post-nav__caption">Next&thinsp;»</span><p class="post-nav__post-title">LSM Tree</p></a>
+	</div>
+</nav>
+
+<section class="comments">
+	<div id="disqus_thread"></div>
+<script type="application/javascript">
+    var disqus_config = function () {
+    
+    
+    
+    };
+    (function() {
+        if (["localhost", "127.0.0.1"].indexOf(window.location.hostname) != -1) {
+            document.getElementById('disqus_thread').innerHTML = 'Disqus comments not available by default when the website is previewed locally.';
+            return;
+        }
+        var d = document, s = d.createElement('script'); s.async = true;
+        s.src = '//' + "jianxinhu" + '.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+</section>
+
+
+			</div>
+			<aside class="sidebar"><div class="widget-search widget">
+	<form class="widget-search__form" role="search" method="get" action="https://google.com/search">
+		<label>
+			<input class="widget-search__field" type="search" placeholder="SEARCH..." value="" name="q" aria-label="SEARCH...">
+		</label>
+		<input class="widget-search__submit" type="submit" value="Search">
+		<input type="hidden" name="sitesearch" value="https://hujianxin.github.io/blog/" />
+	</form>
+</div>
+<div class="widget-recent widget">
+	<h4 class="widget__title">Recent Posts</h4>
+	<div class="widget__content">
+		<ul class="widget__list">
+			<li class="widget__item"><a class="widget__link" href="/blog/posts/fencing/">Fencing与脑裂</a></li>
+			<li class="widget__item"><a class="widget__link" href="/blog/posts/lsm/">LSM Tree</a></li>
+			<li class="widget__item"><a class="widget__link" href="/blog/posts/buildload/">HBase BulkLoad</a></li>
+			<li class="widget__item"><a class="widget__link" href="/blog/posts/snapshot/">HBase Snapshot</a></li>
+			<li class="widget__item"><a class="widget__link" href="/blog/posts/hbase_replication/">HBase 集群复制</a></li>
+		</ul>
+	</div>
+</div>
+<div class="widget-categories widget">
+	<h4 class="widget__title">Categories</h4>
+	<div class="widget__content">
+		<ul class="widget__list">
+			<li class="widget__item">
+				<a class="widget__link" href="/blog/categories/%E5%BC%80%E5%8F%91%E8%AE%BE%E8%AE%A1/">开发设计</a>
+			</li>
+		</ul>
+	</div>
+</div>
+<div class="widget-taglist widget">
+	<h4 class="widget__title">Tags</h4>
+	<div class="widget__content">
+		<a class="widget-taglist__link widget__link btn" href="/blog/tags/bulkload/" title="BulkLoad">BulkLoad</a>
+		<a class="widget-taglist__link widget__link btn" href="/blog/tags/fencing/" title="Fencing">Fencing</a>
+		<a class="widget-taglist__link widget__link btn" href="/blog/tags/hbase/" title="HBase">HBase</a>
+		<a class="widget-taglist__link widget__link btn" href="/blog/tags/hdfs/" title="HDFS">HDFS</a>
+		<a class="widget-taglist__link widget__link btn" href="/blog/tags/java/" title="Java">Java</a>
+		<a class="widget-taglist__link widget__link btn" href="/blog/tags/lsm/" title="LSM">LSM</a>
+		<a class="widget-taglist__link widget__link btn" href="/blog/tags/mapreduce/" title="MapReduce">MapReduce</a>
+		<a class="widget-taglist__link widget__link btn" href="/blog/tags/snapshot/" title="Snapshot">Snapshot</a>
+		<a class="widget-taglist__link widget__link btn" href="/blog/tags/spring/" title="Spring">Spring</a>
+		<a class="widget-taglist__link widget__link btn" href="/blog/tags/zab/" title="ZAB">ZAB</a>
+		<a class="widget-taglist__link widget__link btn" href="/blog/tags/zookeeper/" title="Zookeeper">Zookeeper</a>
+	</div>
+</div>
+<div class="widget-social widget">
+	<h4 class="widget-social__title widget__title">Social</h4>
+	<div class="widget-social__content widget__content">
+		<div class="widget-social__item widget__item">
+			<a class="widget-social__link widget__link btn" title="Twitter" rel="noopener noreferrer" href="https://twitter.com/hujianxincn" target="_blank">
+				<svg class="widget-social__link-icon icon icon-twitter" width="24" height="24" viewBox="0 0 384 312"><path d="m384 36.9c-14.1 6.3-29.3 10.5-45.2 12.4 16.3-9.7 28.8-25.2 34.6-43.6-15.2 9-32.1 15.6-50 19.1-14.4-15.2-34.9-24.8-57.5-24.8-43.5 0-78.8 35.3-78.8 78.8 0 6.2.7 12.2 2 17.9-65.5-3.3-123.5-34.6-162.4-82.3-6.7 11.6-10.6 25.2-10.6 39.6 0 27.3 13.9 51.4 35 65.6-12.9-.4-25.1-4-35.7-9.9v1c0 38.2 27.2 70 63.2 77.2-6.6 1.8-13.6 2.8-20.8 2.8-5.1 0-10-.5-14.8-1.4 10 31.3 39.1 54.1 73.6 54.7-27 21.1-60.9 33.7-97.8 33.7-6.4 0-12.6-.4-18.8-1.1 34.9 22.4 76.3 35.4 120.8 35.4 144.9 0 224.1-120 224.1-224.1 0-3.4-.1-6.8-.2-10.2 15.4-11.1 28.7-25 39.3-40.8z"/></svg>
+				<span>Twitter</span>
+			</a>
+		</div>
+		<div class="widget-social__item widget__item">
+			<a class="widget-social__link widget__link btn" title="LinkedIn" rel="noopener noreferrer" href="https://linkedin.com/in/hujianxin" target="_blank">
+				<svg class="widget-social__link-icon icon icon-linkedin" width="24" height="24" viewBox="0 0 352 352"><path d="M0,40v272c0,21.9,18.1,40,40,40h272c21.9,0,40-18.1,40-40V40c0-21.9-18.1-40-40-40H40C18.1,0,0,18.1,0,40z M312,32 c4.6,0,8,3.4,8,8v272c0,4.6-3.4,8-8,8H40c-4.6,0-8-3.4-8-8V40c0-4.6,3.4-8,8-8H312z M59.5,87c0,15.2,12.3,27.5,27.5,27.5 c15.2,0,27.5-12.3,27.5-27.5c0-15.2-12.3-27.5-27.5-27.5C71.8,59.5,59.5,71.8,59.5,87z M187,157h-1v-21h-45v152h47v-75 c0-19.8,3.9-39,28.5-39c24.2,0,24.5,22.4,24.5,40v74h47v-83.5c0-40.9-8.7-72-56.5-72C208.5,132.5,193.3,145.1,187,157z M64,288h47.5 V136H64V288z"/></svg>
+				<span>LinkedIn</span>
+			</a>
+		</div>
+		<div class="widget-social__item widget__item">
+			<a class="widget-social__link widget__link btn" title="GitHub" rel="noopener noreferrer" href="https://github.com/hujianxin" target="_blank">
+				<svg class="widget-social__link-icon icon icon-github" width="24" height="24" viewBox="0 0 384 374"><path d="m192 0c-106.1 0-192 85.8-192 191.7 0 84.7 55 156.6 131.3 181.9 9.6 1.8 13.1-4.2 13.1-9.2 0-4.6-.2-16.6-.3-32.6-53.4 11.6-64.7-25.7-64.7-25.7-8.7-22.1-21.3-28-21.3-28-17.4-11.9 1.3-11.6 1.3-11.6 19.3 1.4 29.4 19.8 29.4 19.8 17.1 29.3 44.9 20.8 55.9 15.9 1.7-12.4 6.7-20.8 12.2-25.6-42.6-4.8-87.5-21.3-87.5-94.8 0-20.9 7.5-38 19.8-51.4-2-4.9-8.6-24.3 1.9-50.7 0 0 16.1-5.2 52.8 19.7 15.3-4.2 31.7-6.4 48.1-6.5 16.3.1 32.7 2.2 48.1 6.5 36.7-24.8 52.8-19.7 52.8-19.7 10.5 26.4 3.9 45.9 1.9 50.7 12.3 13.4 19.7 30.5 19.7 51.4 0 73.7-44.9 89.9-87.7 94.6 6.9 5.9 13 17.6 13 35.5 0 25.6-.2 46.3-.2 52.6 0 5.1 3.5 11.1 13.2 9.2 76.2-25.5 131.2-97.3 131.2-182 0-105.9-86-191.7-192-191.7z"/></svg>
+				<span>GitHub</span>
+			</a>
+		</div>
+		<div class="widget-social__item widget__item">
+			<a class="widget-social__link widget__link btn" title="Bitbucket" rel="noopener noreferrer" href="https://bitbucket.org/hujianxin" target="_blank">
+				<svg class="widget-social__link-icon icon icon-bitbucket" width="24" height="24" viewBox="0 0 256 231"><path d="M8.308 0A8.202 8.202 0 0 0 .106 9.516l34.819 211.373a11.155 11.155 0 0 0 10.909 9.31h167.04a8.202 8.202 0 0 0 8.201-6.89l34.82-213.752a8.202 8.202 0 0 0-8.203-9.514L8.308 0zm146.616 152.768h-53.315l-14.436-75.42h80.67l-12.919 75.42z"/></svg>
+				<span>Bitbucket</span>
+			</a>
+		</div>
+		<div class="widget-social__item widget__item">
+			<a class="widget-social__link widget__link btn" title="Email" href="mailto:hujianxincn@foxmail.com">
+				<svg class="widget-social__link-icon icon icon-mail" width="24" height="24" viewBox="0 0 416 288"><path d="m0 16v256 16h16 384 16v-16-256-16h-16-384-16zm347 16-139 92.5-139-92.5zm-148 125.5 9 5.5 9-5.5 167-111.5v210h-352v-210z"/></svg>
+				<span>hujianxincn@foxmail.com</span>
+			</a>
+		</div>
+
+		
+	</div>
+</div>
+</aside>
+		</div>
+		<footer class="footer">
+	<div class="container footer__container flex">
+		
+		<div class="footer__copyright">
+			&copy; 2020 hujianxin.
+			<span class="footer__copyright-credits">Generated with <a href="https://gohugo.io/" rel="nofollow noopener" target="_blank">Hugo</a> and <a href="https://github.com/Vimux/Mainroad/" rel="nofollow noopener" target="_blank">Mainroad</a> theme.</span>
+		</div>
+	</div>
+</footer>
+	</div>
+<script async defer src="/blog/js/menu.js"></script>
+<script src="/blog/js/custom.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.6/MathJax.js?config=TeX-AMS-MML_HTMLorMML" async></script>
+</body>
+</html>
