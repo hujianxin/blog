@@ -113,7 +113,6 @@
 <h2 id="snapshot之后遇到compaction">Snapshot之后遇到Compaction</h2>
 <p>前面说到，snapshot文件只是真实HFile的引用文件，如果发生compaction之后，原文件不在了，snapshot如何保证不失效的呢？</p>
 <p>HBase 的做法很简单，就是在compact之前，将原始数据转移到archive目录里面。</p>
-
 		</div>
 		<footer class="post__footer">
 			

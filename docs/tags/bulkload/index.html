@@ -80,15 +80,7 @@
 </div></div>
 	</header>
 	<div class="content list__excerpt post__content clearfix">
-		在使用HBase的业务中，很多对HBase写数据的离线任务，因为数据量非常大，可能会造成下面的结果：
- RegionServer频繁flush，从而频繁compact、split，进而影响集群性能。 RegionServer频繁gc。 抢占大量Cpu、内存、IO、带宽资源。 甚至会耗尽RegionServer的线程，导致集群阻塞。  以上问题，会影响到离线任务之外的线上任务，很多情况下，这是不能容忍的。所以HBase提供了BulkLoad模式解决这个问题。
-BulkLoad方法是通过MapReduce来直接写HFile，跳过了HBase的处理流程。就像在读HBase时候使用Snapshot一样。
-BulkLoad核心流程 BulkLoad主要分为两大阶段：HFile生成阶段、HFile导入阶段。
-一般去网上搜或者书上介绍的关于BulkLoad相关的文章，在介绍File生成的时候，都会介绍一种非常简单通用的方式，也就是通过MapReduce的方式生成HFile，但是其实HBase核心的BulkLoad过程是不包括HFile生成的，而是HFile导入阶段。
-所以说，HFile的生成可以是任何形式的，并不一定是大家所使用的MapReduce形式。
-下上面我分别说一下两种不同的方式。
-MapReduce生成HFile 因为官方提供了HFileOutputFormat2.configureIncrementalLoad这个工具，所以使用MapReduce方式非常简单，核心代码如下：
-public class BulkLoadJob { static Logger logger = LoggerFactory.getLogger(BulkLoadJob.class); public static class BulkLoadMap extends Mapper&lt;LongWritable, Text, ImmutableBytesWritable, Put&gt; { public void map(LongWritable key, Text value, Context context) throws IOException, InterruptedException { String[] valueStrSplit = value.toString().split(&#34;,&#34;); String hkey = valueStrSplit[0]; String family = valueStrSplit[1].split(&#34;:&#34;)[0]; String column = valueStrSplit[1].split(&#34;:&#34;)[1]; String hvalue = valueStrSplit[2]; /** * 只支持单列族并发写入，如果是多个列族得多write一次 */ final byte[] rowKey = Bytes.
+		<p><img src="https://raw.githubusercontent.com/hujianxin/pico/master/img/20200727110435.png" alt="20200727110435"></p>
 	</div>
 	<div class="list__footer clearfix">
 		<a class="list__footer-readmore btn" href="/blog/posts/buildload/">Read more…</a>

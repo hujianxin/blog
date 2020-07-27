@@ -11,6 +11,7 @@ tags:
 draft: false
 ---
 ![20200727110808](https://raw.githubusercontent.com/hujianxin/pico/master/img/20200727110808.png)
+<!--more-->
 
 在使用ZK选主或者作为分布式锁的系统中，可能会出现脑裂问题。
 原因可能是：

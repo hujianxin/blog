@@ -17,18 +17,7 @@
       <pubDate>Thu, 18 Jun 2020 00:00:00 +0000</pubDate>
       
       <guid>https://hujianxin.github.io/blog/posts/fencing/</guid>
-      <description>在使用ZK选主或者作为分布式锁的系统中，可能会出现脑裂问题。 原因可能是：
- 节点A的假死，会让ZK认为A是真死，所以将锁让给B。但是A并不认识自己已死，复活之后会继续写目标数据。 ZK某些节点的假死，可能让两个节点都认为自己是Active节点。  所以，ZK解决不了脑裂问题。
-HDFS NameNode如何解决脑裂问题 背景： HDFS的NameNode同时只能存在一个Active节点。
-HDFS通过JournalNode来解决脑裂问题。
-NameNode往JournalNode写edit log的时候，需要带上一个epoch，如果epoch比JournalNode的小，则会被拒绝。
- A节点为Active节点，假设Epoch是7 A节点假死 B节点被选为Active节点，Epoch加一，变成8， B节点写editlog，JournalNode更新epoch为8 A节点复活，通过Epoch 7去写edit log，被拒绝，解决了脑裂问题。  小米云自研消息队列Talos是如何解决脑裂问题 背景：
- Talos需要保证同一条消息必须连续存储 同一个Partition里面的消息必须顺序存储。  所以要求：同一时刻，同一个Partition（HDFS目录）只能有一个Talos Server写入。
-为了解决上面问题，Talos使用了ZK作为分布式锁，将TalosServer与Partition进行绑定。但是如最上所说，Zk无法解决脑裂问题：
- 如果A节点获取到了PartitionA的锁。 A节点假死，锁TTL超时。 B节点获取到Partition的锁。 A节点复活，继续写这个Partition。  如此就有了脑裂问题。
-Talos也是通过Fencing机制来解决脑裂问题。不过与HDFS NameNode形式稍有不同。
-解决步骤：
- 节点A获取到锁 A假死，锁TTL超时。 B获取到锁，获取这个目录下所有的文件，将最后一个文件关闭，并且新建一个名字为{LastOffset+1}的文件，其中LastOffset为最后一个文件的最后一个消息的Offset。 A复活，继续写文件，发现文件已经关闭，新建{LastOffset+1}的文件，发现已经存在，所以A就会放弃这个锁。  参考  Talos读写一致性 NameNode HA实现原理  </description>
+      <description>&lt;p&gt;&lt;img src=&#34;https://raw.githubusercontent.com/hujianxin/pico/master/img/20200727110808.png&#34; alt=&#34;20200727110808&#34;&gt;&lt;/p&gt;</description>
     </item>
     
     <item>
@@ -37,10 +26,7 @@ Talos也是通过Fencing机制来解决脑裂问题。不过与HDFS NameNode形�
       <pubDate>Mon, 18 May 2020 00:00:00 +0000</pubDate>
       
       <guid>https://hujianxin.github.io/blog/posts/zk/</guid>
-      <description>Zk的快速选举以及一致性保证 概念  myid，每个节点的唯一标识，是存在服务器上特定位置的一个文件，里面有唯一标识的数字 zxid，64位的数字，前32位表示Leader的epoch;后32位表示该epoch内的序号，也就是第几次原子写入。  服务器状态  LOOKING FOLLOWING LEADING OBSERVING  选票结构  logicClock，表示这是该服务器发起的地几轮投票 state self_id self_zxid vote_id vote_zxid  投票过程  先比较logicClock 再比较zxid 再比较myid  Commit过的数据不丢失 快速选举与一致性保证都属于ZAB算法，zk通过快速选举中的zxid，保证在leader宕机之后，选出来的新leader包含所有commit过的数据。
-未Commit过的消息对客户端不可见 新Leader会通过zxid判断，将Follower中未Commit，也未过半的消息删除。
-如何利用ZK选主（分布式锁原理等同） 概念 zk作为选主工具，主要依赖与这两种概念：
- Persist节点和Ephemeral节点分类，其中Ephemeral节点会在客户端与zk断开session连接时，自动删除。这是选主的必备特性，用于广播leader宕机事件。 Sequence节点和Non-Sequence节点分类，这两者用于决定使用公平选主、非公平选主。 其中，Sequence是公平选主， 因为Leader宕机之后，会按顺序通知下一个节点自动成为Leader。而Non-Sequence是非公平选主，Leader宕机之后，会通知所有节点，进行竞争，重新竞选Leader。  </description>
+      <description>&lt;p&gt;&lt;img src=&#34;https://raw.githubusercontent.com/hujianxin/pico/master/img/20200727110914.png&#34; alt=&#34;20200727110914&#34;&gt;&lt;/p&gt;</description>
     </item>
     
   </channel>

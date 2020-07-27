@@ -10,6 +10,7 @@ tags:
 draft: false
 ---
 ![20200727110435](https://raw.githubusercontent.com/hujianxin/pico/master/img/20200727110435.png)
+<!--more-->
 
 在使用HBase的业务中，很多对HBase写数据的离线任务，因为数据量非常大，可能会造成下面的结果：
 1. RegionServer频繁flush，从而频繁compact、split，进而影响集群性能。

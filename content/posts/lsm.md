@@ -11,6 +11,7 @@ draft: false
 ---
 
 ![lsm_tree](https://raw.githubusercontent.com/hujianxin/pico/master/img/lsm_tree.png)
+<!--more-->
 
 LSM Tree是HBase使用的数据存储结构。主要原因是，HBase基于HDFS作为底层文件存储，而HDFS不支持随机写，只支持顺序写。而LSM Tree可以轻松应对这种使用场景。
 

@@ -205,7 +205,6 @@
 <p>上面MapReduce的过程非常简单。但是如果想同时生成多个表，貌似是做不到的。因为这个Reducer只能将数据写入到一个目录里面，而Load的时候，一个目录只能对应一个表。</p>
 <p>所以，这种情况，手工生成HFile更方便。可以参考博客：<a href="http://www.zhangrenhua.com/2016/01/28/hadoop-Hbase%E5%BF%AB%E9%80%9F%E5%86%99%E5%85%A5%E8%A7%A3%E6%83%91%E4%B9%8BHFile/">Hbase快速写入解惑之HFile</a></p>
 <p>在阅读HFileOutputFormat2这个工具类的代码之后，发现，其实可以只是用里面createRecordWriter这个方法，稍作修改就可以。</p>
-
 		</div>
 		<footer class="post__footer">
 			

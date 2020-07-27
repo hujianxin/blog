@@ -10,6 +10,7 @@ tags:
 draft: false
 ---
 ![20200727110948](https://raw.githubusercontent.com/hujianxin/pico/master/img/20200727110948.png)
+<!--more-->
 
 之前将过BulkLoad可以离线的写入HBase，并且不会出发HBase的写流程，从而减轻HBase的压力、提高写入速度。在读取HBase的时候，也有一个机制，可以直接绕过HBase的读取流程，直接读取HFile，也就是Snapshot机制。
 

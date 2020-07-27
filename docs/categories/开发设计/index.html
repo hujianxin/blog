@@ -80,18 +80,10 @@
 </div></div>
 	</header>
 	<div class="content list__excerpt post__content clearfix">
-		在使用ZK选主或者作为分布式锁的系统中，可能会出现脑裂问题。 原因可能是：
- 节点A的假死，会让ZK认为A是真死，所以将锁让给B。但是A并不认识自己已死，复活之后会继续写目标数据。 ZK某些节点的假死，可能让两个节点都认为自己是Active节点。  所以，ZK解决不了脑裂问题。
-HDFS NameNode如何解决脑裂问题 背景： HDFS的NameNode同时只能存在一个Active节点。
-HDFS通过JournalNode来解决脑裂问题。
-NameNode往JournalNode写edit log的时候，需要带上一个epoch，如果epoch比JournalNode的小，则会被拒绝。
- A节点为Active节点，假设Epoch是7 A节点假死 B节点被选为Active节点，Epoch加一，变成8， B节点写editlog，JournalNode更新epoch为8 A节点复活，通过Epoch 7去写edit log，被拒绝，解决了脑裂问题。  小米云自研消息队列Talos是如何解决脑裂问题 背景：
- Talos需要保证同一条消息必须连续存储 同一个Partition里面的消息必须顺序存储。  所以要求：同一时刻，同一个Partition（HDFS目录）只能有一个Talos Server写入。
-为了解决上面问题，Talos使用了ZK作为分布式锁，将TalosServer与Partition进行绑定。但是如最上所说，Zk无法解决脑裂问题：
- 如果A节点获取到了PartitionA的锁。 A节点假死，锁TTL超时。 B节点获取到Partition的锁。 A节点复活，继续写这个Partition。  如此就有了脑裂问题。
-Talos也是通过Fencing机制来解决脑裂问题。不过与HDFS NameNode形式稍有不同。
-解决步骤：
- 节点A获取到锁 A假死，锁TTL超时。 B获取到锁，获取这个目录下所有的文件，将最后一个文件关闭，并且新建一个名字为{LastOffset+1}的文件，其中LastOffset为最后一个文件的最后一个消息的Offset。 A复活，继续写文件，发现文件已经关闭，新建{LastOffset+1}的文件，发现已经存在，所以A就会放弃这个锁。  参考  Talos读写一致性 NameNode HA实现原理  
+		<p><img src="https://raw.githubusercontent.com/hujianxin/pico/master/img/20200727110808.png" alt="20200727110808"></p>
+	</div>
+	<div class="list__footer clearfix">
+		<a class="list__footer-readmore btn" href="/blog/posts/fencing/">Read more…</a>
 	</div>
 </article><article class="list__item post">
 	<header class="list__header">
@@ -113,16 +105,10 @@ Talos也是通过Fencing机制来解决脑裂问题。不过与HDFS NameNode形�
 </div></div>
 	</header>
 	<div class="content list__excerpt post__content clearfix">
-		LSM Tree是HBase使用的数据存储结构。主要原因是，HBase基于HDFS作为底层文件存储，而HDFS不支持随机写，只支持顺序写。而LSM Tree可以轻松应对这种使用场景。
-随机写磁盘会导致大量的磁盘寻道，影响写入效率，LSM本身是顺序写入，在磁盘写入方面具有先天优势。另外，有些写多读少的应用场景也非常适合使用LSM Tree。
-HBase的LSM Tree实现 在HBase设计中，数据分为两部分：MemStore、DiskStore。
-新写入的数据直接写入MemStore，但是为了防止数据丢失，会写一条WAL。当MemStore达到一定的阈值，将其设置只读，并新建一个新的MemStore用来写入，只读的MemStore会被异步的刷成一个DiskStore。
-HBase的compaction LSM Tree实现的系统，因为是append only的设计，所以compact是必须的过程。HBase中，分为两种compact：minor compact，major compact
-minor compact minor compact是选取部分小的、相邻的HFile，合并成一个大的HFile
-major compact major compact，是将整个DiskSotre合并成一个HFile，合并过程中，会删除：过期数据、已经打了删除标记的数据、版本号超额的数据。
-分层压缩：LevelDB的LSM Tree实现 LevelDB也是使用了LSM Tree的设计，但是他的compact过程与HBase不同，采用了分层压缩的设计。
-如上图所示：
- Level0层，是由ImmutableMem Table dump出来的。所以Level0层不同文件可能会有重叠的。 Level n是由level n-1和level n层compact出来的。 读数据时，顺序是内存-&gt;Level0-&gt;Level1-&gt;Level&hellip;，在查询Level0时，需要查询多个文件，查询其他层时，只需要查询特定文件。  
+		<p><img src="https://raw.githubusercontent.com/hujianxin/pico/master/img/lsm_tree.png" alt="lsm_tree"></p>
+	</div>
+	<div class="list__footer clearfix">
+		<a class="list__footer-readmore btn" href="/blog/posts/lsm/">Read more…</a>
 	</div>
 </article><article class="list__item post">
 	<header class="list__header">
@@ -144,15 +130,7 @@ major compact major compact，是将整个DiskSotre合并成一个HFile，合并
 </div></div>
 	</header>
 	<div class="content list__excerpt post__content clearfix">
-		在使用HBase的业务中，很多对HBase写数据的离线任务，因为数据量非常大，可能会造成下面的结果：
- RegionServer频繁flush，从而频繁compact、split，进而影响集群性能。 RegionServer频繁gc。 抢占大量Cpu、内存、IO、带宽资源。 甚至会耗尽RegionServer的线程，导致集群阻塞。  以上问题，会影响到离线任务之外的线上任务，很多情况下，这是不能容忍的。所以HBase提供了BulkLoad模式解决这个问题。
-BulkLoad方法是通过MapReduce来直接写HFile，跳过了HBase的处理流程。就像在读HBase时候使用Snapshot一样。
-BulkLoad核心流程 BulkLoad主要分为两大阶段：HFile生成阶段、HFile导入阶段。
-一般去网上搜或者书上介绍的关于BulkLoad相关的文章，在介绍File生成的时候，都会介绍一种非常简单通用的方式，也就是通过MapReduce的方式生成HFile，但是其实HBase核心的BulkLoad过程是不包括HFile生成的，而是HFile导入阶段。
-所以说，HFile的生成可以是任何形式的，并不一定是大家所使用的MapReduce形式。
-下上面我分别说一下两种不同的方式。
-MapReduce生成HFile 因为官方提供了HFileOutputFormat2.configureIncrementalLoad这个工具，所以使用MapReduce方式非常简单，核心代码如下：
-public class BulkLoadJob { static Logger logger = LoggerFactory.getLogger(BulkLoadJob.class); public static class BulkLoadMap extends Mapper&lt;LongWritable, Text, ImmutableBytesWritable, Put&gt; { public void map(LongWritable key, Text value, Context context) throws IOException, InterruptedException { String[] valueStrSplit = value.toString().split(&#34;,&#34;); String hkey = valueStrSplit[0]; String family = valueStrSplit[1].split(&#34;:&#34;)[0]; String column = valueStrSplit[1].split(&#34;:&#34;)[1]; String hvalue = valueStrSplit[2]; /** * 只支持单列族并发写入，如果是多个列族得多write一次 */ final byte[] rowKey = Bytes.
+		<p><img src="https://raw.githubusercontent.com/hujianxin/pico/master/img/20200727110435.png" alt="20200727110435"></p>
 	</div>
 	<div class="list__footer clearfix">
 		<a class="list__footer-readmore btn" href="/blog/posts/buildload/">Read more…</a>
@@ -177,18 +155,10 @@ public class BulkLoadJob { static Logger logger = LoggerFactory.getLogger(BulkLo
 </div></div>
 	</header>
 	<div class="content list__excerpt post__content clearfix">
-		之前将过BulkLoad可以离线的写入HBase，并且不会出发HBase的写流程，从而减轻HBase的压力、提高写入速度。在读取HBase的时候，也有一个机制，可以直接绕过HBase的读取流程，直接读取HFile，也就是Snapshot机制。
-Snapshot原本是为了快速备份HBase设计的。但是我们使用这个功能来快速扫表，效果惊艳。
-Snapshot技术基础原理 为什么Snapshot可以做到这么快呢？主要是因为HBase给表打Snapshot的时候，并没有真正的备份数据，生成了原始数据的一个指针。
-能这样做得益与HBase落盘的数据都不会再修改，直到compact。
-所以Snapshot的总体流程是这样的：
- Memstore flush生成新文件 对当前所有的Hfile建立引用指针。  Snapshot具体流程 Snapshot是由客户端发起的，但是真正执行这一动作的是RegionServer，RegionServer非常多，这会导致Snapshot的事务问题，HBase通过两阶段提交来解决这个问题：
-我们都知道两阶段提交的过程包括：
- 协调者发起prepare，等待ack 执行者准备环境，发送ack 协调者收到所有的ack之后，发起commit  具体到Snapshot的实现中，两阶段提交主要是通过Zk为媒介进行的。
-Snapshot具体实现 前面将了Snapshot的流程，其中重要概念就是这个引用文件。
-引用文件主要包含了region的元数据，HFile文件名等。
-Snapshot之后遇到Compaction 前面说到，snapshot文件只是真实HFile的引用文件，如果发生compaction之后，原文件不在了，snapshot如何保证不失效的呢？
-HBase 的做法很简单，就是在compact之前，将原始数据转移到archive目录里面。
+		<p><img src="https://raw.githubusercontent.com/hujianxin/pico/master/img/20200727110948.png" alt="20200727110948"></p>
+	</div>
+	<div class="list__footer clearfix">
+		<a class="list__footer-readmore btn" href="/blog/posts/snapshot/">Read more…</a>
 	</div>
 </article><article class="list__item post">
 	<header class="list__header">
@@ -232,10 +202,10 @@ HBase 的做法很简单，就是在compact之前，将原始数据转移到arch
 </div></div>
 	</header>
 	<div class="content list__excerpt post__content clearfix">
-		Zk的快速选举以及一致性保证 概念  myid，每个节点的唯一标识，是存在服务器上特定位置的一个文件，里面有唯一标识的数字 zxid，64位的数字，前32位表示Leader的epoch;后32位表示该epoch内的序号，也就是第几次原子写入。  服务器状态  LOOKING FOLLOWING LEADING OBSERVING  选票结构  logicClock，表示这是该服务器发起的地几轮投票 state self_id self_zxid vote_id vote_zxid  投票过程  先比较logicClock 再比较zxid 再比较myid  Commit过的数据不丢失 快速选举与一致性保证都属于ZAB算法，zk通过快速选举中的zxid，保证在leader宕机之后，选出来的新leader包含所有commit过的数据。
-未Commit过的消息对客户端不可见 新Leader会通过zxid判断，将Follower中未Commit，也未过半的消息删除。
-如何利用ZK选主（分布式锁原理等同） 概念 zk作为选主工具，主要依赖与这两种概念：
- Persist节点和Ephemeral节点分类，其中Ephemeral节点会在客户端与zk断开session连接时，自动删除。这是选主的必备特性，用于广播leader宕机事件。 Sequence节点和Non-Sequence节点分类，这两者用于决定使用公平选主、非公平选主。 其中，Sequence是公平选主， 因为Leader宕机之后，会按顺序通知下一个节点自动成为Leader。而Non-Sequence是非公平选主，Leader宕机之后，会通知所有节点，进行竞争，重新竞选Leader。  
+		<p><img src="https://raw.githubusercontent.com/hujianxin/pico/master/img/20200727110914.png" alt="20200727110914"></p>
+	</div>
+	<div class="list__footer clearfix">
+		<a class="list__footer-readmore btn" href="/blog/posts/zk/">Read more…</a>
 	</div>
 </article><article class="list__item post">
 	<header class="list__header">
