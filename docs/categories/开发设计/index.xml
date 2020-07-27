@@ -75,6 +75,17 @@
     </item>
     
     <item>
+      <title>Java并发编程问题汇总五：ThreadLocal</title>
+      <link>https://hujianxin.github.io/blog/posts/concurrency5/</link>
+      <pubDate>Fri, 12 Apr 2019 00:00:00 +0000</pubDate>
+      
+      <guid>https://hujianxin.github.io/blog/posts/concurrency5/</guid>
+      <description>&lt;p&gt;ThreadLocal是比较常用的多线程工具，有效理解ThreadLocal的内部原理，对自信地使用它具有益处。&lt;/p&gt;
+&lt;p&gt;许多朋友认为它是多线程环境下处理&lt;strong&gt;数据共享&lt;/strong&gt;的手段，其实这种想法是对ThreadLocal最大的误解。&lt;/p&gt;
+&lt;p&gt;内存数据共享是并发编程中需要处理的一大难点，但是ThreadLocal却不是为了解决数据共享问题而生的。顾名思义，ThreadLocal为每个线程提供一个本地（本线程）副本，而这些副本之间，从出生到结束，都是没有丝毫联系的，它们仿佛是生活在平行宇宙中的同名个体，之间没有交际，互补影响，更何谈数据共享。&lt;/p&gt;</description>
+    </item>
+    
+    <item>
       <title>Java并发编程问题汇总四：ArrayList和CopyOnWriteArrayList</title>
       <link>https://hujianxin.github.io/blog/posts/concurrency4/</link>
       <pubDate>Thu, 11 Apr 2019 00:00:00 +0000</pubDate>
