@@ -103,36 +103,6 @@
   </url>
   
   <url>
-    <loc>https://hujianxin.github.io/blog/tags/aqs/</loc>
-    <lastmod>2019-06-08T00:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
-    <loc>https://hujianxin.github.io/blog/tags/concurrency/</loc>
-    <lastmod>2019-06-08T00:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
-    <loc>https://hujianxin.github.io/blog/tags/java/</loc>
-    <lastmod>2019-06-08T00:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
-    <loc>https://hujianxin.github.io/blog/posts/concurrency3/</loc>
-    <lastmod>2019-06-08T00:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
-    <loc>https://hujianxin.github.io/blog/posts/concurrency1/</loc>
-    <lastmod>2019-06-08T00:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
-    <loc>https://hujianxin.github.io/blog/posts/concurrency2/</loc>
-    <lastmod>2019-06-08T00:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
     <loc>https://hujianxin.github.io/blog/tags/mapreduce/</loc>
     <lastmod>2019-06-08T00:00:00+00:00</lastmod>
   </url>
@@ -140,6 +110,36 @@
   <url>
     <loc>https://hujianxin.github.io/blog/posts/mapreduce/</loc>
     <lastmod>2019-06-08T00:00:00+00:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://hujianxin.github.io/blog/tags/aqs/</loc>
+    <lastmod>2019-04-10T00:00:00+00:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://hujianxin.github.io/blog/tags/concurrency/</loc>
+    <lastmod>2019-04-10T00:00:00+00:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://hujianxin.github.io/blog/tags/java/</loc>
+    <lastmod>2019-04-10T00:00:00+00:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://hujianxin.github.io/blog/posts/concurrency3/</loc>
+    <lastmod>2019-04-10T00:00:00+00:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://hujianxin.github.io/blog/posts/concurrency2/</loc>
+    <lastmod>2019-04-09T00:00:00+00:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://hujianxin.github.io/blog/posts/concurrency1/</loc>
+    <lastmod>2019-04-08T00:00:00+00:00</lastmod>
   </url>
   
   <url>
