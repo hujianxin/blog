@@ -86,6 +86,7 @@
       </ul>
     </li>
     <li><a href="#资源的销毁">资源的销毁</a></li>
+    <li><a href="#filebackedoutputstream总结">FileBackedOutputStream总结</a></li>
     <li><a href="#不建议使用finalized">不建议使用finalized</a></li>
   </ul>
 </nav>
@@ -225,6 +226,12 @@
 <p>FileBackedOutputStream的大体原理已经介绍完了，但是重要的是资源还没有删除。在这个类里面，提供了一个reset方法，用来将OutputStream恢复到初始状态，顺便在里面完成了文件资源的删除工作。</p>
 <p>可能是害怕调用者忘记调用reset来删除资源，所以在构造函数中，如果指定resetOnFinalize的时候，会重写finalized方法。在finalized中来删除资源。</p>
 <p>但是，finalized本身是不能够保证被立刻执行的，可能会因为某些原因导致长达几分钟甚至几十分钟不被调用，最后导致reset不能够被及时调用。</p>
+<h2 id="filebackedoutputstream总结">FileBackedOutputStream总结</h2>
+<p>经过上面的分析，在使用FileBackOutputStream时，需要做一下两点：</p>
+<ol>
+<li>resetOnFinalize设为false</li>
+<li>在finally里面手工调用reset。</li>
+</ol>
 <h2 id="不建议使用finalized">不建议使用finalized</h2>
 <p>finalized是Object类的方法。finalized被调用的过程如下：</p>
 <ol>

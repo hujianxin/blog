@@ -166,6 +166,11 @@ FileBackedOutputStream的大体原理已经介绍完了，但是重要的是资�
 
 但是，finalized本身是不能够保证被立刻执行的，可能会因为某些原因导致长达几分钟甚至几十分钟不被调用，最后导致reset不能够被及时调用。
 
+## FileBackedOutputStream总结
+经过上面的分析，在使用FileBackOutputStream时，需要做一下两点：
+1. resetOnFinalize设为false
+2. 在finally里面手工调用reset。
+
 ## 不建议使用finalized
 finalized是Object类的方法。finalized被调用的过程如下：
 
