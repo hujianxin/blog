@@ -1,6 +1,6 @@
 ---
-title: HTTPS 和 HTTP2
-description: HTTPS 和 HTTP2
+title: HTTPS
+description: HTTPS
 date: 2020-01-10
 categories:
   - "开发设计"
