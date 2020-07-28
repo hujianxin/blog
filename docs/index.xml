@@ -50,15 +50,6 @@
     </item>
     
     <item>
-      <title>HTTPS 和 HTTP2</title>
-      <link>https://hujianxin.github.io/blog/posts/https_http/</link>
-      <pubDate>Mon, 18 May 2020 00:00:00 +0000</pubDate>
-      
-      <guid>https://hujianxin.github.io/blog/posts/https_http/</guid>
-      <description>&lt;p&gt;因为目前的工作是与对象存储相关的，所以与HTTP协议打交道还算比较多，对HTTP一些基本的概念有一定了解，但是始终没有自己完整厘清过HTTPS的工作流程，今天整理一下思路。&lt;/p&gt;</description>
-    </item>
-    
-    <item>
       <title>ZooKeeper选举</title>
       <link>https://hujianxin.github.io/blog/posts/zk/</link>
       <pubDate>Mon, 18 May 2020 00:00:00 +0000</pubDate>
@@ -77,6 +68,16 @@
 这是我的个人博客，会分享一些技术为主的文章，侧重于Java、Python、Go、分布式技术、编程工具等。偶尔也会分享一些生活中的琐碎感悟。希望我的分享会对你有帮助。
 My name is hujianxin, nowadays, I&amp;rsquo;m working at XiaoMi to do some ObjectStorage tech development.
 This is my person blog, I&amp;rsquo;ll post some technology-oriented articles related about Java\Python\Go\Distributed technology\Developing tools and so on. sometimes, I will alse share some random thought from my daily life. May this website help you.</description>
+    </item>
+    
+    <item>
+      <title>HTTPS 和 HTTP2</title>
+      <link>https://hujianxin.github.io/blog/posts/https_http/</link>
+      <pubDate>Fri, 10 Jan 2020 00:00:00 +0000</pubDate>
+      
+      <guid>https://hujianxin.github.io/blog/posts/https_http/</guid>
+      <description>&lt;p&gt;&lt;img src=&#34;https://raw.githubusercontent.com/hujianxin/pico/master/img/20200727220356.png&#34; alt=&#34;20200727220356&#34;&gt;&lt;/p&gt;
+&lt;p&gt;因为目前的工作是与对象存储相关的，所以与HTTP协议打交道还算比较多，对HTTP一些基本的概念有一定了解，但是始终没有自己完整厘清过HTTPS的工作流程，今天整理一下思路。&lt;/p&gt;</description>
     </item>
     
     <item>
