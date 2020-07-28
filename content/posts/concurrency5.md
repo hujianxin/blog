@@ -16,6 +16,8 @@ ThreadLocal是比较常用的多线程工具，有效理解ThreadLocal的内部�
 
 内存数据共享是并发编程中需要处理的一大难点，但是ThreadLocal却不是为了解决数据共享问题而生的。顾名思义，ThreadLocal为每个线程提供一个本地（本线程）副本，而这些副本之间，从出生到结束，都是没有丝毫联系的，它们仿佛是生活在平行宇宙中的同名个体，之间没有交际，互补影响，更何谈数据共享。<!--more-->
 
+## 使用场景
+
 ## Thread可以作为ThreadLocal内部Map的Key？
 给同事介绍介绍ThreadLocal的时候，我经常说，你可以想象里面有一个HashMap，Key就是Thread本身，Value就是Thread对应的值，虽然对不懂的同事而言，这样的解释能让其更快的了解代码，使用ThreadLocal，但其实这是一种误人子弟的说法。
 
@@ -30,5 +32,3 @@ ThreadLocal是比较常用的多线程工具，有效理解ThreadLocal的内部�
 ## 神奇的数字u0x61c88647
 
 ## WeakReference
-
-## 使用场景
