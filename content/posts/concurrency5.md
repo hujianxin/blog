@@ -53,3 +53,6 @@ public static void main(String[] args) throws Exception{
 这是因为，一旦Thread结束，threadLocal变量也就变成了一个不可达的值，如果是强引用的话，会因为Thread中的map存在，导致gc无法回收它。如果是弱引用，则会被自动回收。
 
 但是虽然Key被gc了，但是Value还是不会被gc，导致整个entry不会被gc，最后还是会出现内存泄漏，所以最好是调用remove方法。
+
+## 参考
+[透视ThreadLocal](https://zhuanlan.zhihu.com/p/37733237)

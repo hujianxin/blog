@@ -81,6 +81,7 @@
     <li><a href="#使用场景">使用场景</a></li>
     <li><a href="#threadlocal与thread共生">ThreadLocal与Thread共生</a></li>
     <li><a href="#threadlocalmap和hashmap">ThreadLocalMap和HashMap</a></li>
+    <li><a href="#参考">参考</a></li>
   </ul>
 </nav>
 	</div>
@@ -115,6 +116,8 @@
 <p>可以通过ThreadLocalMap的源码看到，Entry是一个WeakReference。在垃圾回收器线程扫描它所管辖的内存区域的过程中，一旦发现了只具有弱引用的对象，不管当前内存空间足够与否，都会回收它的内存。</p>
 <p>这是因为，一旦Thread结束，threadLocal变量也就变成了一个不可达的值，如果是强引用的话，会因为Thread中的map存在，导致gc无法回收它。如果是弱引用，则会被自动回收。</p>
 <p>但是虽然Key被gc了，但是Value还是不会被gc，导致整个entry不会被gc，最后还是会出现内存泄漏，所以最好是调用remove方法。</p>
+<h2 id="参考">参考</h2>
+<p><a href="https://zhuanlan.zhihu.com/p/37733237">透视ThreadLocal</a></p>
 		</div>
 		<footer class="post__footer">
 			
