@@ -241,6 +241,68 @@
 </article><article class="list__item post">
 	<header class="list__header">
 		<h3 class="list__title post__title ">
+			<a href="/blog/posts/filebackedoutputstream/" rel="bookmark">
+			慎用FileBackedOutputStream
+			</a>
+		</h3>
+		<div class="list__meta meta">
+<div class="meta__item-datetime meta__item">
+	<svg class="meta__icon icon icon-time" width="16" height="14" viewBox="0 0 30 28"><path d="M15 0C7 0 1 6 1 14s6 14 14 14 14-6 14-14S23 0 15 0zm0 25C9 25 4 20 4 14S9 3 15 3s11 5 11 11-5 11-11 11zm1-18h-2v8.4l6.8 4.4L22 18l-6-3.8V7z"/></svg>
+	<time class="meta__text" datetime="2019-08-18T00:00:00">2019-08-18</time>
+</div>
+
+<div class="meta__item-categories meta__item">
+	<svg class="meta__icon icon icon-category" width="16" height="16" viewBox="0 0 16 16"><path d="m7 2l1 2h8v11h-16v-13z"/></svg>
+	<span class="meta__text"><a class="meta__link" href="/blog/categories/%E5%BC%80%E5%8F%91%E8%AE%BE%E8%AE%A1/" rel="category">开发设计</a>
+	</span>
+</div></div>
+	</header>
+	<div class="content list__excerpt post__content clearfix">
+		<p>在项目中遇到一个FileBackedOutputStream的坑，在此记录一下。</p>
+<p>因为某些原因，需要实现一个ResettableInputStream，大家都知道，JDK中，ByteArrayInputStream是可以mark、reset的，但是代价就是将所有数据都load进内存，在数据量较大时，这是无法接受的。因为我们需要的是任意的在流中穿梭的能力，这时候，可以借助磁盘来完成这一功能。索性，Guava中提供了一个类，FileBackedOutputStream，将数据写入其中之后，如果数据超过一定限度，它就会将数据写入磁盘。</p>
+<p>FileBackedOutputStream的构造函数如下所示，里面提供了一个叫supplier的类，这个类作为OutputStream的出口。这里应该注意一下，如果resetOnFinalize这一个参数如果设为true的话，supplier会重写finalize方法，里面调用reset操作。这也是本篇文章出现的原因。</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java">  <span style="color:#66d9ef">public</span> <span style="color:#a6e22e">FileBackedOutputStream</span><span style="color:#f92672">(</span><span style="color:#66d9ef">int</span> fileThreshold<span style="color:#f92672">,</span> <span style="color:#66d9ef">boolean</span> resetOnFinalize<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+    <span style="color:#66d9ef">this</span><span style="color:#f92672">.</span><span style="color:#a6e22e">fileThreshold</span> <span style="color:#f92672">=</span> fileThreshold<span style="color:#f92672">;</span>
+    <span style="color:#66d9ef">this</span><span style="color:#f92672">.</span><span style="color:#a6e22e">resetOnFinalize</span> <span style="color:#f92672">=</span> resetOnFinalize<span style="color:#f92672">;</span>
+    memory <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> MemoryOutput<span style="color:#f92672">();</span>
+    out <span style="color:#f92672">=</span> memory<span style="color:#f92672">;</span>
+
+    <span style="color:#66d9ef">if</span> <span style="color:#f92672">(</span>resetOnFinalize<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+      supplier <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> InputSupplier<span style="color:#f92672">&lt;</span>InputStream<span style="color:#f92672">&gt;()</span> <span style="color:#f92672">{</span>
+        <span style="color:#a6e22e">@Override</span>
+        <span style="color:#66d9ef">public</span> InputStream <span style="color:#a6e22e">getInput</span><span style="color:#f92672">()</span> <span style="color:#66d9ef">throws</span> IOException <span style="color:#f92672">{</span>
+          <span style="color:#66d9ef">return</span> openStream<span style="color:#f92672">();</span>
+        <span style="color:#f92672">}</span>
+
+        <span style="color:#a6e22e">@Override</span> <span style="color:#66d9ef">protected</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">finalize</span><span style="color:#f92672">()</span> <span style="color:#f92672">{</span>
+          <span style="color:#66d9ef">try</span> <span style="color:#f92672">{</span>
+            reset<span style="color:#f92672">();</span>
+          <span style="color:#f92672">}</span> <span style="color:#66d9ef">catch</span> <span style="color:#f92672">(</span>Throwable t<span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
+            t<span style="color:#f92672">.</span><span style="color:#a6e22e">printStackTrace</span><span style="color:#f92672">(</span>System<span style="color:#f92672">.</span><span style="color:#a6e22e">err</span><span style="color:#f92672">);</span>
+          <span style="color:#f92672">}</span>
+        <span style="color:#f92672">}</span>
+      <span style="color:#f92672">};</span>
+    <span style="color:#f92672">}</span> <span style="color:#66d9ef">else</span> <span style="color:#f92672">{</span>
+      supplier <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> InputSupplier<span style="color:#f92672">&lt;</span>InputStream<span style="color:#f92672">&gt;()</span> <span style="color:#f92672">{</span>
+        <span style="color:#a6e22e">@Override</span>
+        <span style="color:#66d9ef">public</span> InputStream <span style="color:#a6e22e">getInput</span><span style="color:#f92672">()</span> <span style="color:#66d9ef">throws</span> IOException <span style="color:#f92672">{</span>
+          <span style="color:#66d9ef">return</span> openStream<span style="color:#f92672">();</span>
+        <span style="color:#f92672">}</span>
+      <span style="color:#f92672">};</span>
+    <span style="color:#f92672">}</span>
+  <span style="color:#f92672">}</span>
+
+  <span style="color:#66d9ef">public</span> InputSupplier<span style="color:#f92672">&lt;</span>InputStream<span style="color:#f92672">&gt;</span> <span style="color:#a6e22e">getSupplier</span><span style="color:#f92672">()</span> <span style="color:#f92672">{</span>
+    <span style="color:#66d9ef">return</span> supplier<span style="color:#f92672">;</span>
+  <span style="color:#f92672">}</span>
+</code></pre></div>
+	</div>
+	<div class="list__footer clearfix">
+		<a class="list__footer-readmore btn" href="/blog/posts/filebackedoutputstream/">Read more…</a>
+	</div>
+</article><article class="list__item post">
+	<header class="list__header">
+		<h3 class="list__title post__title ">
 			<a href="/blog/posts/mapreduce/" rel="bookmark">
 			MapReduce
 			</a>
@@ -289,33 +351,6 @@
 	</div>
 	<div class="list__footer clearfix">
 		<a class="list__footer-readmore btn" href="/blog/posts/concurrency5/">Read more…</a>
-	</div>
-</article><article class="list__item post">
-	<header class="list__header">
-		<h3 class="list__title post__title ">
-			<a href="/blog/posts/concurrency4/" rel="bookmark">
-			Java并发编程问题汇总四：ArrayList和CopyOnWriteArrayList
-			</a>
-		</h3>
-		<div class="list__meta meta">
-<div class="meta__item-datetime meta__item">
-	<svg class="meta__icon icon icon-time" width="16" height="14" viewBox="0 0 30 28"><path d="M15 0C7 0 1 6 1 14s6 14 14 14 14-6 14-14S23 0 15 0zm0 25C9 25 4 20 4 14S9 3 15 3s11 5 11 11-5 11-11 11zm1-18h-2v8.4l6.8 4.4L22 18l-6-3.8V7z"/></svg>
-	<time class="meta__text" datetime="2019-04-11T00:00:00">2019-04-11</time>
-</div>
-
-<div class="meta__item-categories meta__item">
-	<svg class="meta__icon icon icon-category" width="16" height="16" viewBox="0 0 16 16"><path d="m7 2l1 2h8v11h-16v-13z"/></svg>
-	<span class="meta__text"><a class="meta__link" href="/blog/categories/%E5%BC%80%E5%8F%91%E8%AE%BE%E8%AE%A1/" rel="category">开发设计</a>
-	</span>
-</div></div>
-	</header>
-	<div class="content list__excerpt post__content clearfix">
-		<p>Java编程中，ArrayList是最常用的数据结构之一。</p>
-<p>ArrayList使用了数组来实现List结构。读取和插入速度非常快，删除效率较低，因为设计到了数据拷贝。</p>
-<p>ArrayList用户广泛，但是不能直接使用在多线程环境下。</p>
-	</div>
-	<div class="list__footer clearfix">
-		<a class="list__footer-readmore btn" href="/blog/posts/concurrency4/">Read more…</a>
 	</div>
 </article>
 </main>
@@ -367,6 +402,8 @@
 		<a class="widget-taglist__link widget__link btn" href="/blog/tags/concurrency/" title="Concurrency">Concurrency</a>
 		<a class="widget-taglist__link widget__link btn" href="/blog/tags/cow/" title="COW">COW</a>
 		<a class="widget-taglist__link widget__link btn" href="/blog/tags/fencing/" title="Fencing">Fencing</a>
+		<a class="widget-taglist__link widget__link btn" href="/blog/tags/filebackedoutputstream/" title="FileBackedOutputStream">FileBackedOutputStream</a>
+		<a class="widget-taglist__link widget__link btn" href="/blog/tags/finalized/" title="finalized">finalized</a>
 		<a class="widget-taglist__link widget__link btn" href="/blog/tags/hbase/" title="HBase">HBase</a>
 		<a class="widget-taglist__link widget__link btn" href="/blog/tags/hdfs/" title="HDFS">HDFS</a>
 		<a class="widget-taglist__link widget__link btn" href="/blog/tags/https/" title="HTTPS">HTTPS</a>
