@@ -1,7 +1,7 @@
 ---
 title: Fencing与脑裂
 description: Fencing如何解决脑裂问题
-date: 2020-06-18
+date: 2019-08-18
 categories:
   - "开发设计"
 tags:

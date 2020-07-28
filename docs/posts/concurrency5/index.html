@@ -78,11 +78,11 @@
 	<div class="toc__menu">
 		<nav id="TableOfContents">
   <ul>
+    <li><a href="#使用场景">使用场景</a></li>
     <li><a href="#thread可以作为threadlocal内部map的key">Thread可以作为ThreadLocal内部Map的Key？</a></li>
     <li><a href="#threadlocal与thread共生">ThreadLocal与Thread共生</a></li>
     <li><a href="#神奇的数字u0x61c88647">神奇的数字u0x61c88647</a></li>
     <li><a href="#weakreference">WeakReference</a></li>
-    <li><a href="#使用场景">使用场景</a></li>
   </ul>
 </nav>
 	</div>
@@ -91,6 +91,7 @@
 			<p>ThreadLocal是比较常用的多线程工具，有效理解ThreadLocal的内部原理，对自信地使用它具有益处。</p>
 <p>许多朋友认为它是多线程环境下处理<strong>数据共享</strong>的手段，其实这种想法是对ThreadLocal最大的误解。</p>
 <p>内存数据共享是并发编程中需要处理的一大难点，但是ThreadLocal却不是为了解决数据共享问题而生的。顾名思义，ThreadLocal为每个线程提供一个本地（本线程）副本，而这些副本之间，从出生到结束，都是没有丝毫联系的，它们仿佛是生活在平行宇宙中的同名个体，之间没有交际，互补影响，更何谈数据共享。</p>
+<h2 id="使用场景">使用场景</h2>
 <h2 id="thread可以作为threadlocal内部map的key">Thread可以作为ThreadLocal内部Map的Key？</h2>
 <p>给同事介绍介绍ThreadLocal的时候，我经常说，你可以想象里面有一个HashMap，Key就是Thread本身，Value就是Thread对应的值，虽然对不懂的同事而言，这样的解释能让其更快的了解代码，使用ThreadLocal，但其实这是一种误人子弟的说法。</p>
 <p>首先，简单思考一下，如果Key是Thread，Value是值的话，那这个HashMap实例本身存在什么地方？答案是，并没有这样一个超然于所有线程之外的地方用来存放这个map。就算是强行搞出一个这样的map，还是会出现并发问题，需要进行并发控制，脱离了ThreadLocal存在的意义。</p>
@@ -99,7 +100,6 @@
 <h2 id="threadlocal与thread共生">ThreadLocal与Thread共生</h2>
 <h2 id="神奇的数字u0x61c88647">神奇的数字u0x61c88647</h2>
 <h2 id="weakreference">WeakReference</h2>
-<h2 id="使用场景">使用场景</h2>
 		</div>
 		<footer class="post__footer">
 			
@@ -174,11 +174,11 @@
 	<h4 class="widget__title">Recent Posts</h4>
 	<div class="widget__content">
 		<ul class="widget__list">
-			<li class="widget__item"><a class="widget__link" href="/blog/posts/fencing/">Fencing与脑裂</a></li>
 			<li class="widget__item"><a class="widget__link" href="/blog/posts/lsm/">LSM Tree</a></li>
 			<li class="widget__item"><a class="widget__link" href="/blog/posts/buildload/">HBase BulkLoad</a></li>
 			<li class="widget__item"><a class="widget__link" href="/blog/posts/snapshot/">HBase Snapshot</a></li>
 			<li class="widget__item"><a class="widget__link" href="/blog/posts/hbase_replication/">HBase 集群复制</a></li>
+			<li class="widget__item"><a class="widget__link" href="/blog/posts/https_http/">HTTPS 和 HTTP2</a></li>
 		</ul>
 	</div>
 </div>
@@ -202,6 +202,7 @@
 		<a class="widget-taglist__link widget__link btn" href="/blog/tags/fencing/" title="Fencing">Fencing</a>
 		<a class="widget-taglist__link widget__link btn" href="/blog/tags/hbase/" title="HBase">HBase</a>
 		<a class="widget-taglist__link widget__link btn" href="/blog/tags/hdfs/" title="HDFS">HDFS</a>
+		<a class="widget-taglist__link widget__link btn" href="/blog/tags/https/" title="HTTPS">HTTPS</a>
 		<a class="widget-taglist__link widget__link btn" href="/blog/tags/java/" title="Java">Java</a>
 		<a class="widget-taglist__link widget__link btn" href="/blog/tags/lsm/" title="LSM">LSM</a>
 		<a class="widget-taglist__link widget__link btn" href="/blog/tags/mapreduce/" title="MapReduce">MapReduce</a>

@@ -155,7 +155,12 @@
 </div></div>
 	</header>
 	<div class="content list__excerpt post__content clearfix">
-		
+		<p>HBase本身支持集群复制，也就是说，制定一个备集群，HBase的RegionServer会异步（或同步）的将数据同步到备集群中。</p>
+<p>这个功能看似简单，其实非常有用。首先，备集群本身是非常有用的，在某些系统中，需要跑一些离线任务半实时的统计，直接在线上HBase跑的话，容易占据太多资源，造成抖动。所以通过备集群来做这件事情是一个不错的选择。当然，我认为SnapShot应该是比这个更靠谱一点。</p>
+<p>另外，这里的备集群并不一定是HBase集群，HBase提供了一个抽象，可以让用户自定义BaseReplicationEndpoint，可以将需要备份的数据自定义得写到某个地方，这就提供了无限的想象力。</p>
+	</div>
+	<div class="list__footer clearfix">
+		<a class="list__footer-readmore btn" href="/blog/posts/hbase_replication/">Read more…</a>
 	</div>
 </article>
 </main>
@@ -176,11 +181,11 @@
 	<h4 class="widget__title">Recent Posts</h4>
 	<div class="widget__content">
 		<ul class="widget__list">
-			<li class="widget__item"><a class="widget__link" href="/blog/posts/fencing/">Fencing与脑裂</a></li>
 			<li class="widget__item"><a class="widget__link" href="/blog/posts/lsm/">LSM Tree</a></li>
 			<li class="widget__item"><a class="widget__link" href="/blog/posts/buildload/">HBase BulkLoad</a></li>
 			<li class="widget__item"><a class="widget__link" href="/blog/posts/snapshot/">HBase Snapshot</a></li>
 			<li class="widget__item"><a class="widget__link" href="/blog/posts/hbase_replication/">HBase 集群复制</a></li>
+			<li class="widget__item"><a class="widget__link" href="/blog/posts/https_http/">HTTPS 和 HTTP2</a></li>
 		</ul>
 	</div>
 </div>
@@ -204,6 +209,7 @@
 		<a class="widget-taglist__link widget__link btn" href="/blog/tags/fencing/" title="Fencing">Fencing</a>
 		<a class="widget-taglist__link widget__link btn" href="/blog/tags/hbase/" title="HBase">HBase</a>
 		<a class="widget-taglist__link widget__link btn" href="/blog/tags/hdfs/" title="HDFS">HDFS</a>
+		<a class="widget-taglist__link widget__link btn" href="/blog/tags/https/" title="HTTPS">HTTPS</a>
 		<a class="widget-taglist__link widget__link btn" href="/blog/tags/java/" title="Java">Java</a>
 		<a class="widget-taglist__link widget__link btn" href="/blog/tags/lsm/" title="LSM">LSM</a>
 		<a class="widget-taglist__link widget__link btn" href="/blog/tags/mapreduce/" title="MapReduce">MapReduce</a>

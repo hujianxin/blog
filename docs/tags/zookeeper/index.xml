@@ -6,19 +6,10 @@
     <description>Recent content in Zookeeper on Just4Fun</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Thu, 18 Jun 2020 00:00:00 +0000</lastBuildDate>
+    <lastBuildDate>Mon, 18 May 2020 00:00:00 +0000</lastBuildDate>
     
 	<atom:link href="https://hujianxin.github.io/blog/tags/zookeeper/index.xml" rel="self" type="application/rss+xml" />
     
-    
-    <item>
-      <title>Fencing与脑裂</title>
-      <link>https://hujianxin.github.io/blog/posts/fencing/</link>
-      <pubDate>Thu, 18 Jun 2020 00:00:00 +0000</pubDate>
-      
-      <guid>https://hujianxin.github.io/blog/posts/fencing/</guid>
-      <description>&lt;p&gt;&lt;img src=&#34;https://raw.githubusercontent.com/hujianxin/pico/master/img/20200727110808.png&#34; alt=&#34;20200727110808&#34;&gt;&lt;/p&gt;</description>
-    </item>
     
     <item>
       <title>ZooKeeper选举</title>
@@ -27,6 +18,15 @@
       
       <guid>https://hujianxin.github.io/blog/posts/zk/</guid>
       <description>&lt;p&gt;&lt;img src=&#34;https://raw.githubusercontent.com/hujianxin/pico/master/img/20200727110914.png&#34; alt=&#34;20200727110914&#34;&gt;&lt;/p&gt;</description>
+    </item>
+    
+    <item>
+      <title>Fencing与脑裂</title>
+      <link>https://hujianxin.github.io/blog/posts/fencing/</link>
+      <pubDate>Sun, 18 Aug 2019 00:00:00 +0000</pubDate>
+      
+      <guid>https://hujianxin.github.io/blog/posts/fencing/</guid>
+      <description>&lt;p&gt;&lt;img src=&#34;https://raw.githubusercontent.com/hujianxin/pico/master/img/20200727110808.png&#34; alt=&#34;20200727110808&#34;&gt;&lt;/p&gt;</description>
     </item>
     
   </channel>

@@ -62,31 +62,6 @@
 	<article class="list__item post">
 	<header class="list__header">
 		<h3 class="list__title post__title ">
-			<a href="/blog/posts/fencing/" rel="bookmark">
-			Fencing与脑裂
-			</a>
-		</h3>
-		<div class="list__meta meta">
-<div class="meta__item-datetime meta__item">
-	<svg class="meta__icon icon icon-time" width="16" height="14" viewBox="0 0 30 28"><path d="M15 0C7 0 1 6 1 14s6 14 14 14 14-6 14-14S23 0 15 0zm0 25C9 25 4 20 4 14S9 3 15 3s11 5 11 11-5 11-11 11zm1-18h-2v8.4l6.8 4.4L22 18l-6-3.8V7z"/></svg>
-	<time class="meta__text" datetime="2020-06-18T00:00:00">2020-06-18</time>
-</div>
-
-<div class="meta__item-categories meta__item">
-	<svg class="meta__icon icon icon-category" width="16" height="16" viewBox="0 0 16 16"><path d="m7 2l1 2h8v11h-16v-13z"/></svg>
-	<span class="meta__text"><a class="meta__link" href="/blog/categories/%E5%BC%80%E5%8F%91%E8%AE%BE%E8%AE%A1/" rel="category">开发设计</a>
-	</span>
-</div></div>
-	</header>
-	<div class="content list__excerpt post__content clearfix">
-		<p><img src="https://raw.githubusercontent.com/hujianxin/pico/master/img/20200727110808.png" alt="20200727110808"></p>
-	</div>
-	<div class="list__footer clearfix">
-		<a class="list__footer-readmore btn" href="/blog/posts/fencing/">Read more…</a>
-	</div>
-</article><article class="list__item post">
-	<header class="list__header">
-		<h3 class="list__title post__title ">
 			<a href="/blog/posts/lsm/" rel="bookmark">
 			LSM Tree
 			</a>
@@ -179,7 +154,37 @@
 </div></div>
 	</header>
 	<div class="content list__excerpt post__content clearfix">
-		
+		<p>HBase本身支持集群复制，也就是说，制定一个备集群，HBase的RegionServer会异步（或同步）的将数据同步到备集群中。</p>
+<p>这个功能看似简单，其实非常有用。首先，备集群本身是非常有用的，在某些系统中，需要跑一些离线任务半实时的统计，直接在线上HBase跑的话，容易占据太多资源，造成抖动。所以通过备集群来做这件事情是一个不错的选择。当然，我认为SnapShot应该是比这个更靠谱一点。</p>
+<p>另外，这里的备集群并不一定是HBase集群，HBase提供了一个抽象，可以让用户自定义BaseReplicationEndpoint，可以将需要备份的数据自定义得写到某个地方，这就提供了无限的想象力。</p>
+	</div>
+	<div class="list__footer clearfix">
+		<a class="list__footer-readmore btn" href="/blog/posts/hbase_replication/">Read more…</a>
+	</div>
+</article><article class="list__item post">
+	<header class="list__header">
+		<h3 class="list__title post__title ">
+			<a href="/blog/posts/https_http/" rel="bookmark">
+			HTTPS 和 HTTP2
+			</a>
+		</h3>
+		<div class="list__meta meta">
+<div class="meta__item-datetime meta__item">
+	<svg class="meta__icon icon icon-time" width="16" height="14" viewBox="0 0 30 28"><path d="M15 0C7 0 1 6 1 14s6 14 14 14 14-6 14-14S23 0 15 0zm0 25C9 25 4 20 4 14S9 3 15 3s11 5 11 11-5 11-11 11zm1-18h-2v8.4l6.8 4.4L22 18l-6-3.8V7z"/></svg>
+	<time class="meta__text" datetime="2020-05-18T00:00:00">2020-05-18</time>
+</div>
+
+<div class="meta__item-categories meta__item">
+	<svg class="meta__icon icon icon-category" width="16" height="16" viewBox="0 0 16 16"><path d="m7 2l1 2h8v11h-16v-13z"/></svg>
+	<span class="meta__text"><a class="meta__link" href="/blog/categories/%E5%BC%80%E5%8F%91%E8%AE%BE%E8%AE%A1/" rel="category">开发设计</a>
+	</span>
+</div></div>
+	</header>
+	<div class="content list__excerpt post__content clearfix">
+		<p>因为目前的工作是与对象存储相关的，所以与HTTP协议打交道还算比较多，对HTTP一些基本的概念有一定了解，但是始终没有自己完整厘清过HTTPS的工作流程，今天整理一下思路。</p>
+	</div>
+	<div class="list__footer clearfix">
+		<a class="list__footer-readmore btn" href="/blog/posts/https_http/">Read more…</a>
 	</div>
 </article><article class="list__item post">
 	<header class="list__header">
@@ -205,6 +210,31 @@
 	</div>
 	<div class="list__footer clearfix">
 		<a class="list__footer-readmore btn" href="/blog/posts/zk/">Read more…</a>
+	</div>
+</article><article class="list__item post">
+	<header class="list__header">
+		<h3 class="list__title post__title ">
+			<a href="/blog/posts/fencing/" rel="bookmark">
+			Fencing与脑裂
+			</a>
+		</h3>
+		<div class="list__meta meta">
+<div class="meta__item-datetime meta__item">
+	<svg class="meta__icon icon icon-time" width="16" height="14" viewBox="0 0 30 28"><path d="M15 0C7 0 1 6 1 14s6 14 14 14 14-6 14-14S23 0 15 0zm0 25C9 25 4 20 4 14S9 3 15 3s11 5 11 11-5 11-11 11zm1-18h-2v8.4l6.8 4.4L22 18l-6-3.8V7z"/></svg>
+	<time class="meta__text" datetime="2019-08-18T00:00:00">2019-08-18</time>
+</div>
+
+<div class="meta__item-categories meta__item">
+	<svg class="meta__icon icon icon-category" width="16" height="16" viewBox="0 0 16 16"><path d="m7 2l1 2h8v11h-16v-13z"/></svg>
+	<span class="meta__text"><a class="meta__link" href="/blog/categories/%E5%BC%80%E5%8F%91%E8%AE%BE%E8%AE%A1/" rel="category">开发设计</a>
+	</span>
+</div></div>
+	</header>
+	<div class="content list__excerpt post__content clearfix">
+		<p><img src="https://raw.githubusercontent.com/hujianxin/pico/master/img/20200727110808.png" alt="20200727110808"></p>
+	</div>
+	<div class="list__footer clearfix">
+		<a class="list__footer-readmore btn" href="/blog/posts/fencing/">Read more…</a>
 	</div>
 </article><article class="list__item post">
 	<header class="list__header">
@@ -285,31 +315,6 @@
 	<div class="list__footer clearfix">
 		<a class="list__footer-readmore btn" href="/blog/posts/concurrency4/">Read more…</a>
 	</div>
-</article><article class="list__item post">
-	<header class="list__header">
-		<h3 class="list__title post__title ">
-			<a href="/blog/posts/concurrency3/" rel="bookmark">
-			Java并发编程问题汇总三：AQS
-			</a>
-		</h3>
-		<div class="list__meta meta">
-<div class="meta__item-datetime meta__item">
-	<svg class="meta__icon icon icon-time" width="16" height="14" viewBox="0 0 30 28"><path d="M15 0C7 0 1 6 1 14s6 14 14 14 14-6 14-14S23 0 15 0zm0 25C9 25 4 20 4 14S9 3 15 3s11 5 11 11-5 11-11 11zm1-18h-2v8.4l6.8 4.4L22 18l-6-3.8V7z"/></svg>
-	<time class="meta__text" datetime="2019-04-10T00:00:00">2019-04-10</time>
-</div>
-
-<div class="meta__item-categories meta__item">
-	<svg class="meta__icon icon icon-category" width="16" height="16" viewBox="0 0 16 16"><path d="m7 2l1 2h8v11h-16v-13z"/></svg>
-	<span class="meta__text"><a class="meta__link" href="/blog/categories/%E5%BC%80%E5%8F%91%E8%AE%BE%E8%AE%A1/" rel="category">开发设计</a>
-	</span>
-</div></div>
-	</header>
-	<div class="content list__excerpt post__content clearfix">
-		<p>上一篇，我们了解了Java自带synchronized锁的一些相关知识，本篇文章将会聚焦在concurrent中，所有锁类型都会用到的工具类：AQS（AbstractQueuedSynchronizer），看看concurrent包中的ReentrantLock、CountDownLatch等工具都是如何实现的。</p>
-	</div>
-	<div class="list__footer clearfix">
-		<a class="list__footer-readmore btn" href="/blog/posts/concurrency3/">Read more…</a>
-	</div>
 </article>
 </main>
 
@@ -333,11 +338,11 @@
 	<h4 class="widget__title">Recent Posts</h4>
 	<div class="widget__content">
 		<ul class="widget__list">
-			<li class="widget__item"><a class="widget__link" href="/blog/posts/fencing/">Fencing与脑裂</a></li>
 			<li class="widget__item"><a class="widget__link" href="/blog/posts/lsm/">LSM Tree</a></li>
 			<li class="widget__item"><a class="widget__link" href="/blog/posts/buildload/">HBase BulkLoad</a></li>
 			<li class="widget__item"><a class="widget__link" href="/blog/posts/snapshot/">HBase Snapshot</a></li>
 			<li class="widget__item"><a class="widget__link" href="/blog/posts/hbase_replication/">HBase 集群复制</a></li>
+			<li class="widget__item"><a class="widget__link" href="/blog/posts/https_http/">HTTPS 和 HTTP2</a></li>
 		</ul>
 	</div>
 </div>
@@ -361,6 +366,7 @@
 		<a class="widget-taglist__link widget__link btn" href="/blog/tags/fencing/" title="Fencing">Fencing</a>
 		<a class="widget-taglist__link widget__link btn" href="/blog/tags/hbase/" title="HBase">HBase</a>
 		<a class="widget-taglist__link widget__link btn" href="/blog/tags/hdfs/" title="HDFS">HDFS</a>
+		<a class="widget-taglist__link widget__link btn" href="/blog/tags/https/" title="HTTPS">HTTPS</a>
 		<a class="widget-taglist__link widget__link btn" href="/blog/tags/java/" title="Java">Java</a>
 		<a class="widget-taglist__link widget__link btn" href="/blog/tags/lsm/" title="LSM">LSM</a>
 		<a class="widget-taglist__link widget__link btn" href="/blog/tags/mapreduce/" title="MapReduce">MapReduce</a>
