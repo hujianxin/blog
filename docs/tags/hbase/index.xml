@@ -21,24 +21,6 @@
     </item>
     
     <item>
-      <title>HBase BulkLoad</title>
-      <link>https://hujianxin.github.io/blog/posts/buildload/</link>
-      <pubDate>Mon, 18 May 2020 00:00:00 +0000</pubDate>
-      
-      <guid>https://hujianxin.github.io/blog/posts/buildload/</guid>
-      <description>&lt;p&gt;&lt;img src=&#34;https://raw.githubusercontent.com/hujianxin/pico/master/img/20200727110435.png&#34; alt=&#34;20200727110435&#34;&gt;&lt;/p&gt;</description>
-    </item>
-    
-    <item>
-      <title>HBase Snapshot</title>
-      <link>https://hujianxin.github.io/blog/posts/snapshot/</link>
-      <pubDate>Mon, 18 May 2020 00:00:00 +0000</pubDate>
-      
-      <guid>https://hujianxin.github.io/blog/posts/snapshot/</guid>
-      <description>&lt;p&gt;&lt;img src=&#34;https://raw.githubusercontent.com/hujianxin/pico/master/img/20200727110948.png&#34; alt=&#34;20200727110948&#34;&gt;&lt;/p&gt;</description>
-    </item>
-    
-    <item>
       <title>HBase 集群复制</title>
       <link>https://hujianxin.github.io/blog/posts/hbase_replication/</link>
       <pubDate>Mon, 18 May 2020 00:00:00 +0000</pubDate>
@@ -47,6 +29,24 @@
       <description>&lt;p&gt;HBase本身支持集群复制，也就是说，制定一个备集群，HBase的RegionServer会异步（或同步）的将数据同步到备集群中。&lt;/p&gt;
 &lt;p&gt;这个功能看似简单，其实非常有用。首先，备集群本身是非常有用的，在某些系统中，需要跑一些离线任务半实时的统计，直接在线上HBase跑的话，容易占据太多资源，造成抖动。所以通过备集群来做这件事情是一个不错的选择。当然，我认为SnapShot应该是比这个更靠谱一点。&lt;/p&gt;
 &lt;p&gt;另外，这里的备集群并不一定是HBase集群，HBase提供了一个抽象，可以让用户自定义BaseReplicationEndpoint，可以将需要备份的数据自定义得写到某个地方，这就提供了无限的想象力。&lt;/p&gt;</description>
+    </item>
+    
+    <item>
+      <title>HBase BulkLoad</title>
+      <link>https://hujianxin.github.io/blog/posts/buildload/</link>
+      <pubDate>Sun, 17 May 2020 00:00:00 +0000</pubDate>
+      
+      <guid>https://hujianxin.github.io/blog/posts/buildload/</guid>
+      <description>&lt;p&gt;&lt;img src=&#34;https://raw.githubusercontent.com/hujianxin/pico/master/img/20200727110435.png&#34; alt=&#34;20200727110435&#34;&gt;&lt;/p&gt;</description>
+    </item>
+    
+    <item>
+      <title>HBase Snapshot</title>
+      <link>https://hujianxin.github.io/blog/posts/snapshot/</link>
+      <pubDate>Fri, 10 Apr 2020 00:00:00 +0000</pubDate>
+      
+      <guid>https://hujianxin.github.io/blog/posts/snapshot/</guid>
+      <description>&lt;p&gt;&lt;img src=&#34;https://raw.githubusercontent.com/hujianxin/pico/master/img/20200727110948.png&#34; alt=&#34;20200727110948&#34;&gt;&lt;/p&gt;</description>
     </item>
     
   </channel>

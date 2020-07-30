@@ -1,7 +1,7 @@
 ---
 title: ZooKeeper选举
 description: Zookeeper如何正确选主、如何正确帮其他系统选主。
-date: 2020-05-18
+date: 2020-03-01
 categories:
   - "开发设计"
 tags:

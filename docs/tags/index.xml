@@ -32,7 +32,7 @@
     <item>
       <title>BulkLoad</title>
       <link>https://hujianxin.github.io/blog/tags/bulkload/</link>
-      <pubDate>Mon, 18 May 2020 00:00:00 +0000</pubDate>
+      <pubDate>Sun, 17 May 2020 00:00:00 +0000</pubDate>
       
       <guid>https://hujianxin.github.io/blog/tags/bulkload/</guid>
       <description></description>
@@ -41,7 +41,7 @@
     <item>
       <title>Snapshot</title>
       <link>https://hujianxin.github.io/blog/tags/snapshot/</link>
-      <pubDate>Mon, 18 May 2020 00:00:00 +0000</pubDate>
+      <pubDate>Fri, 10 Apr 2020 00:00:00 +0000</pubDate>
       
       <guid>https://hujianxin.github.io/blog/tags/snapshot/</guid>
       <description></description>
@@ -50,7 +50,7 @@
     <item>
       <title>ZAB</title>
       <link>https://hujianxin.github.io/blog/tags/zab/</link>
-      <pubDate>Mon, 18 May 2020 00:00:00 +0000</pubDate>
+      <pubDate>Sun, 01 Mar 2020 00:00:00 +0000</pubDate>
       
       <guid>https://hujianxin.github.io/blog/tags/zab/</guid>
       <description></description>
@@ -59,7 +59,7 @@
     <item>
       <title>Zookeeper</title>
       <link>https://hujianxin.github.io/blog/tags/zookeeper/</link>
-      <pubDate>Mon, 18 May 2020 00:00:00 +0000</pubDate>
+      <pubDate>Sun, 01 Mar 2020 00:00:00 +0000</pubDate>
       
       <guid>https://hujianxin.github.io/blog/tags/zookeeper/</guid>
       <description></description>
@@ -107,6 +107,15 @@
       <pubDate>Sun, 18 Aug 2019 00:00:00 +0000</pubDate>
       
       <guid>https://hujianxin.github.io/blog/tags/hdfs/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>Raft</title>
+      <link>https://hujianxin.github.io/blog/tags/raft/</link>
+      <pubDate>Wed, 19 Jun 2019 00:00:00 +0000</pubDate>
+      
+      <guid>https://hujianxin.github.io/blog/tags/raft/</guid>
       <description></description>
     </item>
     

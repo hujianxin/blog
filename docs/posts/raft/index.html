@@ -4,19 +4,19 @@
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
-	<title>HBase Snapshot - Just4Fun</title>
+	<title>Raft的原理与应用 - Just4Fun</title>
 	<script>(function(d,e){d[e]=d[e].replace("no-js","js");})(document.documentElement,"className");</script>
-	<meta name="description" content="Snapshot">
-	<meta property="og:title" content="HBase Snapshot" />
-<meta property="og:description" content="Snapshot" />
+	<meta name="description" content="Raft的原理与应用">
+	<meta property="og:title" content="Raft的原理与应用" />
+<meta property="og:description" content="Raft的原理与应用" />
 <meta property="og:type" content="article" />
-<meta property="og:url" content="https://hujianxin.github.io/blog/posts/snapshot/" />
-<meta property="article:published_time" content="2020-04-10T00:00:00+00:00" />
-<meta property="article:modified_time" content="2020-04-10T00:00:00+00:00" />
+<meta property="og:url" content="https://hujianxin.github.io/blog/posts/raft/" />
+<meta property="article:published_time" content="2019-06-19T00:00:00+00:00" />
+<meta property="article:modified_time" content="2019-06-19T00:00:00+00:00" />
 
 	<meta name="twitter:card" content="summary"/>
-<meta name="twitter:title" content="HBase Snapshot"/>
-<meta name="twitter:description" content="Snapshot"/>
+<meta name="twitter:title" content="Raft的原理与应用"/>
+<meta name="twitter:description" content="Raft的原理与应用"/>
 
 	<link rel="dns-prefetch" href="//fonts.googleapis.com">
 	<link rel="dns-prefetch" href="//fonts.gstatic.com">
@@ -60,11 +60,11 @@
 <main class="main" role="main">
 	<article class="post">
 		<header class="post__header">
-			<h1 class="post__title">HBase Snapshot</h1>
+			<h1 class="post__title">Raft的原理与应用</h1>
 			<div class="post__meta meta">
 <div class="meta__item-datetime meta__item">
 	<svg class="meta__icon icon icon-time" width="16" height="14" viewBox="0 0 30 28"><path d="M15 0C7 0 1 6 1 14s6 14 14 14 14-6 14-14S23 0 15 0zm0 25C9 25 4 20 4 14S9 3 15 3s11 5 11 11-5 11-11 11zm1-18h-2v8.4l6.8 4.4L22 18l-6-3.8V7z"/></svg>
-	<time class="meta__text" datetime="2020-04-10T00:00:00">2020-04-10</time>
+	<time class="meta__text" datetime="2019-06-19T00:00:00">2019-06-19</time>
 </div>
 
 <div class="meta__item-categories meta__item">
@@ -78,49 +78,69 @@
 	<div class="toc__menu">
 		<nav id="TableOfContents">
   <ul>
-    <li><a href="#snapshot技术基础原理">Snapshot技术基础原理</a></li>
-    <li><a href="#snapshot具体流程">Snapshot具体流程</a></li>
-    <li><a href="#snapshot具体实现">Snapshot具体实现</a></li>
-    <li><a href="#snapshot之后遇到compaction">Snapshot之后遇到Compaction</a></li>
+    <li><a href="#raft算法在解决什么问题">Raft算法在解决什么问题？</a></li>
+    <li><a href="#raft应用场景举例">Raft应用场景举例</a></li>
+    <li><a href="#raft算法中的基本概念">Raft算法中的基本概念</a></li>
+    <li><a href="#三种角色以及转换过程">三种角色以及转换过程</a></li>
+    <li><a href="#节点维护的状态">节点维护的状态</a></li>
+    <li><a href="#两个重要的远程调用">两个重要的远程调用</a></li>
   </ul>
 </nav>
 	</div>
 </div>
 <div class="content post__content clearfix">
-			<p><img src="https://raw.githubusercontent.com/hujianxin/pico/master/img/20200727110948.png" alt="20200727110948"></p>
-<p>之前将过BulkLoad可以离线的写入HBase，并且不会出发HBase的写流程，从而减轻HBase的压力、提高写入速度。在读取HBase的时候，也有一个机制，可以直接绕过HBase的读取流程，直接读取HFile，也就是Snapshot机制。</p>
-<p>Snapshot原本是为了快速备份HBase设计的。但是我们使用这个功能来快速扫表，效果惊艳。</p>
-<h2 id="snapshot技术基础原理">Snapshot技术基础原理</h2>
-<p>为什么Snapshot可以做到这么快呢？主要是因为HBase给表打Snapshot的时候，并没有真正的备份数据，生成了原始数据的一个指针。</p>
-<p>能这样做得益与HBase落盘的数据都不会再修改，直到compact。</p>
-<p>所以Snapshot的总体流程是这样的：</p>
+			<p>Raft算法在分布式领域可谓是大名鼎鼎，最近通过6.824课程，更细致的学习了一下Raft算法，在这里做一下总结工作。</p>
+<h2 id="raft算法在解决什么问题">Raft算法在解决什么问题？</h2>
+<p>众所周知，Raft算法是一致性协议。于此同时呢，有很多人也挺说过两阶段提交，表示这也是一致性协议。难道他们是一种类型的算法吗？</p>
+<p>其实不然，此一致性非彼一致性，这里用英文单词来区分可能更合适：Raft的一致性是Consensus，指的是一致性提交，2PC的一致性是Consistency，指的是事务的外部一致性。</p>
+<p>也就是说，Raft是为了保证多个副本数据保持一样。而2PC是指，在事物提交中，保证原子性和外部一致性。完全是两个领域的概念。</p>
+<h2 id="raft应用场景举例">Raft应用场景举例</h2>
+<h2 id="raft算法中的基本概念">Raft算法中的基本概念</h2>
 <ol>
-<li>Memstore flush生成新文件</li>
-<li>对当前所有的Hfile建立引用指针。</li>
+<li>Leader、Candidate、Follower，这三个概念是Raft集群中，机器的角色。一个机器可以是Leader，可能因为故障下线又上线之后又会变成Follower。任何写请求，都是由Leader来处理，然后同步到其他Follower。</li>
+<li>Leader 选举，是一个过程，指的是系统中目前没有一个Leader角色，需要经过Leader选举选出唯一的Leader。</li>
+<li>Term，任期。每换一个Leader，都会增加一个任期，任期是递增的数字。</li>
+<li>Log，指的是需要同步的指令日志</li>
+<li>State Machine，状态机，Log最后需要在状态机中得以实例化、现实化。</li>
 </ol>
-<h2 id="snapshot具体流程">Snapshot具体流程</h2>
-<p>Snapshot是由客户端发起的，但是真正执行这一动作的是RegionServer，RegionServer非常多，这会导致Snapshot的事务问题，HBase通过两阶段提交来解决这个问题：</p>
-<p>我们都知道两阶段提交的过程包括：</p>
+<h2 id="三种角色以及转换过程">三种角色以及转换过程</h2>
+<p><img src="https://raw.githubusercontent.com/hujianxin/pico/master/img/20200729130940.png" alt="20200729130940"></p>
+<p>由上图可以看出来，三个角色是可以互相转换的。</p>
 <ol>
-<li>协调者发起prepare，等待ack</li>
-<li>执行者准备环境，发送ack</li>
-<li>协调者收到所有的ack之后，发起commit</li>
+<li>Follower可以转换成Candidate，这个一般是发生在系统中开始、或者Leader下线之后，Follower发起新一轮选举，自己自动转为candidate角色。</li>
+<li>Candidate可以转换成Candidate，一般是发生在选举超时（长时间没有选举出新的Leader来），重新选举。</li>
+<li>Candidate转换成Leader，则是这个节点被选举成为唯一的Leader。</li>
+<li>Candidate转换成Follower，则是发生在其他的某个Candidate选举成功，自身选举失败之后。Candidate重新变成Follower，做一名小弟。</li>
+<li>Leader变成Follower，一般是发生在，某个Leader发生了网络隔离，系统中以为他下线了，就选出了新的王，他上线之后，发现自己的王朝已经结束了，自动变为小弟。</li>
 </ol>
-<p>具体到Snapshot的实现中，两阶段提交主要是通过Zk为媒介进行的。</p>
-<h2 id="snapshot具体实现">Snapshot具体实现</h2>
-<p>前面将了Snapshot的流程，其中重要概念就是这个引用文件。</p>
-<p>引用文件主要包含了region的元数据，HFile文件名等。</p>
-<h2 id="snapshot之后遇到compaction">Snapshot之后遇到Compaction</h2>
-<p>前面说到，snapshot文件只是真实HFile的引用文件，如果发生compaction之后，原文件不在了，snapshot如何保证不失效的呢？</p>
-<p>HBase 的做法很简单，就是在compact之前，将原始数据转移到archive目录里面。</p>
+<h2 id="节点维护的状态">节点维护的状态</h2>
+<p><img src="https://raw.githubusercontent.com/hujianxin/pico/master/img/20200729133352.png" alt="20200729133352">
+下面三个是所有节点共有的，需要持久化的信息：</p>
+<ol>
+<li>concurrentTerm，本届点所在的当前任期</li>
+<li>votedFor，要投票给谁</li>
+<li>log[]，本节点维护的log entries</li>
+</ol>
+<p>下面是所有节点共有的，不需要持久化的信息：</p>
+<ol>
+<li>commitIndex，在log entries里面，需要commit的最大的index</li>
+<li>lastApplied，在log entires里面，已经apply到状态机的最大index</li>
+</ol>
+<p>下面是只需要维护到leader节点，而且不需要持久化的信息：
+1.</p>
+<h2 id="两个重要的远程调用">两个重要的远程调用</h2>
+<p>Raft中，存在两个重要的RPC过程，也是构建Raft算法唯二必须的远程调用。</p>
+<ol>
+<li>RequestVote RPC</li>
+<li>AppendEntries RPC</li>
+</ol>
 		</div>
 		<footer class="post__footer">
 			
 <div class="post__tags tags clearfix">
 	<svg class="tags__badge icon icon-tag" width="16" height="16" viewBox="0 0 32 32"><path d="M32 19c0 1-1 2-1 2L21 31s-1 1-2 1-2-1-2-1L2 16c-1-1-1.4-2-1.4-2S0 12.5 0 11V3C0 1.5.8.8.8.8S1.5 0 3 0h8c1.5 0 3 .6 3 .6S15 1 16 2l15 15s1 1 1 2zM7 10a3 3 0 1 0 0-6 3 3 0 0 0 0 6z"/></svg>
 	<ul class="tags__list">
-		<li class="tags__item"><a class="tags__link btn" href="/blog/tags/hbase/" rel="tag">HBase</a></li>
-		<li class="tags__item"><a class="tags__link btn" href="/blog/tags/snapshot/" rel="tag">Snapshot</a></li>
+		<li class="tags__item"><a class="tags__link btn" href="/blog/tags/raft/" rel="tag">Raft</a></li>
 	</ul>
 </div>
 		</footer>
@@ -141,10 +161,10 @@
 
 <nav class="post-nav flex">
 	<div class="post-nav__item post-nav__item--prev">
-		<a class="post-nav__link" href="/blog/posts/zk/" rel="prev"><span class="post-nav__caption">«&thinsp;Previous</span><p class="post-nav__post-title">ZooKeeper选举</p></a>
+		<a class="post-nav__link" href="/blog/posts/mapreduce/" rel="prev"><span class="post-nav__caption">«&thinsp;Previous</span><p class="post-nav__post-title">MapReduce</p></a>
 	</div>
 	<div class="post-nav__item post-nav__item--next">
-		<a class="post-nav__link" href="/blog/posts/buildload/" rel="next"><span class="post-nav__caption">Next&thinsp;»</span><p class="post-nav__post-title">HBase BulkLoad</p></a>
+		<a class="post-nav__link" href="/blog/posts/filebackedoutputstream/" rel="next"><span class="post-nav__caption">Next&thinsp;»</span><p class="post-nav__post-title">慎用FileBackedOutputStream</p></a>
 	</div>
 </nav>
 

@@ -21,24 +21,6 @@
     </item>
     
     <item>
-      <title>HBase BulkLoad</title>
-      <link>https://hujianxin.github.io/blog/posts/buildload/</link>
-      <pubDate>Mon, 18 May 2020 00:00:00 +0000</pubDate>
-      
-      <guid>https://hujianxin.github.io/blog/posts/buildload/</guid>
-      <description>&lt;p&gt;&lt;img src=&#34;https://raw.githubusercontent.com/hujianxin/pico/master/img/20200727110435.png&#34; alt=&#34;20200727110435&#34;&gt;&lt;/p&gt;</description>
-    </item>
-    
-    <item>
-      <title>HBase Snapshot</title>
-      <link>https://hujianxin.github.io/blog/posts/snapshot/</link>
-      <pubDate>Mon, 18 May 2020 00:00:00 +0000</pubDate>
-      
-      <guid>https://hujianxin.github.io/blog/posts/snapshot/</guid>
-      <description>&lt;p&gt;&lt;img src=&#34;https://raw.githubusercontent.com/hujianxin/pico/master/img/20200727110948.png&#34; alt=&#34;20200727110948&#34;&gt;&lt;/p&gt;</description>
-    </item>
-    
-    <item>
       <title>HBase 集群复制</title>
       <link>https://hujianxin.github.io/blog/posts/hbase_replication/</link>
       <pubDate>Mon, 18 May 2020 00:00:00 +0000</pubDate>
@@ -50,9 +32,27 @@
     </item>
     
     <item>
+      <title>HBase BulkLoad</title>
+      <link>https://hujianxin.github.io/blog/posts/buildload/</link>
+      <pubDate>Sun, 17 May 2020 00:00:00 +0000</pubDate>
+      
+      <guid>https://hujianxin.github.io/blog/posts/buildload/</guid>
+      <description>&lt;p&gt;&lt;img src=&#34;https://raw.githubusercontent.com/hujianxin/pico/master/img/20200727110435.png&#34; alt=&#34;20200727110435&#34;&gt;&lt;/p&gt;</description>
+    </item>
+    
+    <item>
+      <title>HBase Snapshot</title>
+      <link>https://hujianxin.github.io/blog/posts/snapshot/</link>
+      <pubDate>Fri, 10 Apr 2020 00:00:00 +0000</pubDate>
+      
+      <guid>https://hujianxin.github.io/blog/posts/snapshot/</guid>
+      <description>&lt;p&gt;&lt;img src=&#34;https://raw.githubusercontent.com/hujianxin/pico/master/img/20200727110948.png&#34; alt=&#34;20200727110948&#34;&gt;&lt;/p&gt;</description>
+    </item>
+    
+    <item>
       <title>ZooKeeper选举</title>
       <link>https://hujianxin.github.io/blog/posts/zk/</link>
-      <pubDate>Mon, 18 May 2020 00:00:00 +0000</pubDate>
+      <pubDate>Sun, 01 Mar 2020 00:00:00 +0000</pubDate>
       
       <guid>https://hujianxin.github.io/blog/posts/zk/</guid>
       <description>&lt;p&gt;&lt;img src=&#34;https://raw.githubusercontent.com/hujianxin/pico/master/img/20200727110914.png&#34; alt=&#34;20200727110914&#34;&gt;&lt;/p&gt;</description>
@@ -121,6 +121,15 @@
     &lt;span style=&#34;color:#66d9ef&#34;&gt;return&lt;/span&gt; supplier&lt;span style=&#34;color:#f92672&#34;&gt;;&lt;/span&gt;
   &lt;span style=&#34;color:#f92672&#34;&gt;}&lt;/span&gt;
 &lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;</description>
+    </item>
+    
+    <item>
+      <title>Raft的原理与应用</title>
+      <link>https://hujianxin.github.io/blog/posts/raft/</link>
+      <pubDate>Wed, 19 Jun 2019 00:00:00 +0000</pubDate>
+      
+      <guid>https://hujianxin.github.io/blog/posts/raft/</guid>
+      <description>&lt;p&gt;Raft算法在分布式领域可谓是大名鼎鼎，最近通过6.824课程，更细致的学习了一下Raft算法，在这里做一下总结工作。&lt;/p&gt;</description>
     </item>
     
     <item>
