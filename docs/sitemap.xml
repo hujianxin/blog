@@ -4,16 +4,51 @@
   
   <url>
     <loc>https://hujianxin.github.io/blog/categories/</loc>
-    <lastmod>2020-06-18T00:00:00+00:00</lastmod>
+    <lastmod>2020-08-04T00:00:00+00:00</lastmod>
   </url>
   
   <url>
-    <loc>https://hujianxin.github.io/blog/tags/hbase/</loc>
-    <lastmod>2020-06-18T00:00:00+00:00</lastmod>
+    <loc>https://hujianxin.github.io/blog/tags/concurrency/</loc>
+    <lastmod>2020-08-04T00:00:00+00:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://hujianxin.github.io/blog/tags/java/</loc>
+    <lastmod>2020-08-04T00:00:00+00:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://hujianxin.github.io/blog/posts/concurrency5/</loc>
+    <lastmod>2020-08-04T00:00:00+00:00</lastmod>
   </url>
   
   <url>
     <loc>https://hujianxin.github.io/blog/</loc>
+    <lastmod>2020-08-04T00:00:00+00:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://hujianxin.github.io/blog/posts/</loc>
+    <lastmod>2020-08-04T00:00:00+00:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://hujianxin.github.io/blog/tags/</loc>
+    <lastmod>2020-08-04T00:00:00+00:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://hujianxin.github.io/blog/tags/threadlocal/</loc>
+    <lastmod>2020-08-04T00:00:00+00:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://hujianxin.github.io/blog/categories/%E5%BC%80%E5%8F%91%E8%AE%BE%E8%AE%A1/</loc>
+    <lastmod>2020-08-04T00:00:00+00:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://hujianxin.github.io/blog/tags/hbase/</loc>
     <lastmod>2020-06-18T00:00:00+00:00</lastmod>
   </url>
   
@@ -24,21 +59,6 @@
   
   <url>
     <loc>https://hujianxin.github.io/blog/posts/lsm/</loc>
-    <lastmod>2020-06-18T00:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
-    <loc>https://hujianxin.github.io/blog/posts/</loc>
-    <lastmod>2020-06-18T00:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
-    <loc>https://hujianxin.github.io/blog/tags/</loc>
-    <lastmod>2020-06-18T00:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
-    <loc>https://hujianxin.github.io/blog/categories/%E5%BC%80%E5%8F%91%E8%AE%BE%E8%AE%A1/</loc>
     <lastmod>2020-06-18T00:00:00+00:00</lastmod>
   </url>
   
@@ -125,26 +145,6 @@
   <url>
     <loc>https://hujianxin.github.io/blog/posts/filebackedoutputstream/</loc>
     <lastmod>2019-08-18T00:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
-    <loc>https://hujianxin.github.io/blog/tags/concurrency/</loc>
-    <lastmod>2019-08-04T00:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
-    <loc>https://hujianxin.github.io/blog/tags/java/</loc>
-    <lastmod>2019-08-04T00:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
-    <loc>https://hujianxin.github.io/blog/posts/concurrency5/</loc>
-    <lastmod>2019-08-04T00:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
-    <loc>https://hujianxin.github.io/blog/tags/threadlocal/</loc>
-    <lastmod>2019-08-04T00:00:00+00:00</lastmod>
   </url>
   
   <url>

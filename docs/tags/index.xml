@@ -6,10 +6,37 @@
     <description>Recent content in Tags on Just4Fun</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Thu, 18 Jun 2020 00:00:00 +0000</lastBuildDate>
+    <lastBuildDate>Tue, 04 Aug 2020 00:00:00 +0000</lastBuildDate>
     
 	<atom:link href="https://hujianxin.github.io/blog/tags/index.xml" rel="self" type="application/rss+xml" />
     
+    
+    <item>
+      <title>Concurrency</title>
+      <link>https://hujianxin.github.io/blog/tags/concurrency/</link>
+      <pubDate>Tue, 04 Aug 2020 00:00:00 +0000</pubDate>
+      
+      <guid>https://hujianxin.github.io/blog/tags/concurrency/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>Java</title>
+      <link>https://hujianxin.github.io/blog/tags/java/</link>
+      <pubDate>Tue, 04 Aug 2020 00:00:00 +0000</pubDate>
+      
+      <guid>https://hujianxin.github.io/blog/tags/java/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>ThreadLocal</title>
+      <link>https://hujianxin.github.io/blog/tags/threadlocal/</link>
+      <pubDate>Tue, 04 Aug 2020 00:00:00 +0000</pubDate>
+      
+      <guid>https://hujianxin.github.io/blog/tags/threadlocal/</guid>
+      <description></description>
+    </item>
     
     <item>
       <title>HBase</title>
@@ -107,33 +134,6 @@
       <pubDate>Sun, 18 Aug 2019 00:00:00 +0000</pubDate>
       
       <guid>https://hujianxin.github.io/blog/tags/hdfs/</guid>
-      <description></description>
-    </item>
-    
-    <item>
-      <title>Concurrency</title>
-      <link>https://hujianxin.github.io/blog/tags/concurrency/</link>
-      <pubDate>Sun, 04 Aug 2019 00:00:00 +0000</pubDate>
-      
-      <guid>https://hujianxin.github.io/blog/tags/concurrency/</guid>
-      <description></description>
-    </item>
-    
-    <item>
-      <title>Java</title>
-      <link>https://hujianxin.github.io/blog/tags/java/</link>
-      <pubDate>Sun, 04 Aug 2019 00:00:00 +0000</pubDate>
-      
-      <guid>https://hujianxin.github.io/blog/tags/java/</guid>
-      <description></description>
-    </item>
-    
-    <item>
-      <title>ThreadLocal</title>
-      <link>https://hujianxin.github.io/blog/tags/threadlocal/</link>
-      <pubDate>Sun, 04 Aug 2019 00:00:00 +0000</pubDate>
-      
-      <guid>https://hujianxin.github.io/blog/tags/threadlocal/</guid>
       <description></description>
     </item>
     

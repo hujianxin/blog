@@ -6,7 +6,7 @@
     <description>Recent content in ThreadLocal on Just4Fun</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Sun, 04 Aug 2019 00:00:00 +0000</lastBuildDate>
+    <lastBuildDate>Tue, 04 Aug 2020 00:00:00 +0000</lastBuildDate>
     
 	<atom:link href="https://hujianxin.github.io/blog/tags/threadlocal/index.xml" rel="self" type="application/rss+xml" />
     
@@ -14,7 +14,7 @@
     <item>
       <title>Java并发编程问题汇总五：ThreadLocal</title>
       <link>https://hujianxin.github.io/blog/posts/concurrency5/</link>
-      <pubDate>Sun, 04 Aug 2019 00:00:00 +0000</pubDate>
+      <pubDate>Tue, 04 Aug 2020 00:00:00 +0000</pubDate>
       
       <guid>https://hujianxin.github.io/blog/posts/concurrency5/</guid>
       <description>&lt;p&gt;ThreadLocal是比较常用的多线程工具，有效理解ThreadLocal的内部原理，对自信地使用它具有益处。&lt;/p&gt;

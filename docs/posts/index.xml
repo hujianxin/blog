@@ -6,10 +6,21 @@
     <description>Recent content in Posts on Just4Fun</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Thu, 18 Jun 2020 00:00:00 +0000</lastBuildDate>
+    <lastBuildDate>Tue, 04 Aug 2020 00:00:00 +0000</lastBuildDate>
     
 	<atom:link href="https://hujianxin.github.io/blog/posts/index.xml" rel="self" type="application/rss+xml" />
     
+    
+    <item>
+      <title>Java并发编程问题汇总五：ThreadLocal</title>
+      <link>https://hujianxin.github.io/blog/posts/concurrency5/</link>
+      <pubDate>Tue, 04 Aug 2020 00:00:00 +0000</pubDate>
+      
+      <guid>https://hujianxin.github.io/blog/posts/concurrency5/</guid>
+      <description>&lt;p&gt;ThreadLocal是比较常用的多线程工具，有效理解ThreadLocal的内部原理，对自信地使用它具有益处。&lt;/p&gt;
+&lt;p&gt;许多朋友认为它是多线程环境下处理&lt;strong&gt;数据共享&lt;/strong&gt;的手段，其实这种想法是对ThreadLocal最大的误解。&lt;/p&gt;
+&lt;p&gt;内存数据共享是并发编程中需要处理的一大难点，但是ThreadLocal却不是为了解决数据共享问题而生的。顾名思义，ThreadLocal为每个线程提供一个本地（本线程）副本，而这些副本之间，从出生到结束，都是没有丝毫联系的，它们仿佛是生活在平行宇宙中的同名个体，之间没有交际，互补影响，更何谈数据共享。&lt;/p&gt;</description>
+    </item>
     
     <item>
       <title>LSM Tree</title>
@@ -121,17 +132,6 @@
     &lt;span style=&#34;color:#66d9ef&#34;&gt;return&lt;/span&gt; supplier&lt;span style=&#34;color:#f92672&#34;&gt;;&lt;/span&gt;
   &lt;span style=&#34;color:#f92672&#34;&gt;}&lt;/span&gt;
 &lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;</description>
-    </item>
-    
-    <item>
-      <title>Java并发编程问题汇总五：ThreadLocal</title>
-      <link>https://hujianxin.github.io/blog/posts/concurrency5/</link>
-      <pubDate>Sun, 04 Aug 2019 00:00:00 +0000</pubDate>
-      
-      <guid>https://hujianxin.github.io/blog/posts/concurrency5/</guid>
-      <description>&lt;p&gt;ThreadLocal是比较常用的多线程工具，有效理解ThreadLocal的内部原理，对自信地使用它具有益处。&lt;/p&gt;
-&lt;p&gt;许多朋友认为它是多线程环境下处理&lt;strong&gt;数据共享&lt;/strong&gt;的手段，其实这种想法是对ThreadLocal最大的误解。&lt;/p&gt;
-&lt;p&gt;内存数据共享是并发编程中需要处理的一大难点，但是ThreadLocal却不是为了解决数据共享问题而生的。顾名思义，ThreadLocal为每个线程提供一个本地（本线程）副本，而这些副本之间，从出生到结束，都是没有丝毫联系的，它们仿佛是生活在平行宇宙中的同名个体，之间没有交际，互补影响，更何谈数据共享。&lt;/p&gt;</description>
     </item>
     
     <item>
