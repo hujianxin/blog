@@ -48,3 +48,6 @@ zk作为选主工具，主要依赖与这两种概念：
 1. Persist节点和Ephemeral节点分类，其中Ephemeral节点会在客户端与zk断开session连接时，自动删除。这是选主的必备特性，用于广播leader宕机事件。
 2. Sequence节点和Non-Sequence节点分类，这两者用于决定使用公平选主、非公平选主。
     其中，Sequence是公平选主， 因为Leader宕机之后，会按顺序通知下一个节点自动成为Leader。而Non-Sequence是非公平选主，Leader宕机之后，会通知所有节点，进行竞争，重新竞选Leader。
+
+
+![20200731151706](https://raw.githubusercontent.com/hujianxin/pico/master/img/20200731151706.png)

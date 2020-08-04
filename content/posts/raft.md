@@ -6,7 +6,7 @@ categories:
   - "开发设计"
 tags:
   - "Raft"
-draft: false
+draft: true
 ---
 
 Raft算法在分布式领域可谓是大名鼎鼎，最近通过6.824课程，更细致的学习了一下Raft算法，在这里做一下总结工作。<!--more-->

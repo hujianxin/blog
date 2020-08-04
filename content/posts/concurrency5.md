@@ -1,7 +1,7 @@
 ---
 title: Java并发编程问题汇总五：ThreadLocal
 description: ThreadLocal
-date: 2019-04-12
+date: 2019-08-04
 categories:
   - "开发设计"
 tags:
@@ -37,7 +37,7 @@ public static void main(String[] args) throws Exception{
 ## ThreadLocal与Thread共生
 给同事介绍介绍ThreadLocal的时候，我经常说，你可以想象里面有一个HashMap，Key就是Thread本身，Value就是Thread对应的值，虽然对不懂的同事而言，这样的解释能让其更快的了解代码，使用ThreadLocal，但其实这是一种误人子弟的说法。
 
-首先，简单思考一下，如果Key是Thread，Value是值的话，那这个HashMap实例本身存在什么地方？答案是，并没有这样一个超然于所有线程之外的地方用来存放这个map。
+首先，简单思考一下，如果Key是Thread，Value是值的话，那这个HashMap实例本身存在什么地方？答案是，~~并没有这样一个超然于所有线程之外的地方用来存放这个map。~~，此处理解有误，ThreadLocalMap存放到一个线程里面，实际上就不需要考虑线程安全的问题了。
 
 那么Java中是如何解决的呢？
 
